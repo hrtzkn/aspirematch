@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEADER</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+    <!-- HEADER -->
+<header class="fixed top-0 left-0 right-0 bg-[#166D3B] text-[#f6ebcd] flex justify-between items-center px-8 py-4 rounded-lg h-20">
+    <div class="flex items-center space-x-3">
+        <img src="/static/images/aspire.png" alt="AspireMatch Logo" class="max-h-24 w-auto">
+        <h1 class="text-3xl font-semibold">AspireMatch</h1>
+    </div>
+
+    <div class="flex items-center space-x-3 right-10">
+        <div>
+            <div id="chat-button"
+                class="bg-[#f6ebcd] text-[#166D3B] p-2 rounded-full shadow-lg cursor-pointer">
+                💬 Dan
+            </div>
+
+            <div id="chat-panel"
+                class="hidden fixed top-24 right-6 bg-white w-96 h-[80vh] rounded-lg shadow-lg flex flex-col">
+
+                <!-- HEADER -->
+                <div class="flex justify-between items-center px-4 py-2 bg-[#166D3B] text-white rounded-t-lg">
+                    <span class="font-medium">Chat with Dan</span>
+                    <button id="help-btn" class="text-sm bg-white text-[#166D3B] px-2 py-1 rounded">
+                        Help
+                    </button>
+                </div>
+
+                <!-- MESSAGE AREA -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4"></div>
+
+                <!-- TYPING INDICATOR (separated, no overlap) -->
+                <div id="typing" class="text-sm text-gray-500 px-4 py-1 hidden">
+                    Dan is typing...<span id="dots">.</span>
+                </div>
+
+                <!-- INPUT AREA -->
+                <div class="p-3 flex">
+                    <input id="chat-input"
+                        class="flex-grow text-[#166D3B] p-2 border rounded-l"
+                        placeholder="Ask Dan...">
+                    <button id="chat-send" class="bg-[#166D3B] text-white px-4 rounded-r">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="relative group">
+                <div class="bg-[#f6ebcd] text-[#166D3B] p-3 rounded-full flex items-center justify-center cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                    </svg>
+                </div>
+                <a href="{{ url_for('admin.login') }}" 
+                   class="absolute left-1/2 -translate-x-1/2 mt-1 px-2 py-1 text-sm bg-red-600 text-white rounded-md opacity-0 group-hover:opacity-100 transition">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+</header>
+
+<script>
+const chatButton = document.getElementById("chat-button");
+const chatPanel = document.getElementById("chat-panel");
+const chatInput = document.getElementById("chat-input");
+const chatSend = document.getElementById("chat-send");
+const messagesDiv = document.getElementById("chat-messages");
+const typingDiv = document.getElementById("typing");
+const helpBtn = document.getElementById("help-btn");
+const dots = document.getElementById("dots");
+
+chatButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    chatPanel.classList.toggle("hidden");
+});
+
+document.addEventListener("click", (e) => {
+    if (!chatPanel.contains(e.target) && !chatButton.contains(e.target)) {
+        chatPanel.classList.add("hidden");
+    }
+});
+
+chatPanel.addEventListener("click", (e) => {
+    e.stopPropagation();
+});
+
+function scrollToBottom() {
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+async function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+
+    messagesDiv.innerHTML += `
+        <div class="p-2 bg-gray-200 text-[#166D3B] rounded mb-2">
+            <strong>You:</strong> ${msg}
+        </div>
+    `;
+    scrollToBottom();
+    chatInput.value = "";
+
+    typingDiv.classList.remove("hidden");
+
+    let dotCount = 1;
+    const dotAnim = setInterval(() => {
+        dots.textContent = ".".repeat(dotCount);
+        dotCount = (dotCount % 3) + 1;
+    }, 400);
+
+    const res = await fetch("/admin/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+    });
+
+    const data = await res.json();
+
+    clearInterval(dotAnim);
+    typingDiv.classList.add("hidden");
+
+    messagesDiv.innerHTML += `
+        <div class="p-2 bg-[#166D3B] text-white rounded mb-2">
+            <strong>Dan:</strong> ${data.reply}
+        </div>
+    `;
+    scrollToBottom();
+}
+
+chatSend.addEventListener("click", sendMessage);
+
+chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+});
+
+helpBtn.addEventListener("click", () => {
+    chatInput.value = "help";
+    sendMessage();
+});
+</script>
+
+
+</body>
+</html>

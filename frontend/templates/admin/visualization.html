@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISUALIZATIONS</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminHeader.html' %}
+
+ {% include 'components/adminSidebar.html' %}
+
+<!-- MAIN CONTENT -->
+<div class="flex flex-1">
+  <main class="ml-72 flex-1 p-8 bg-[#f6ebcd] min-h-screen pt-[100px]">
+    <div class="bg-white p-3 shadow-md rounded-2xl mb-6 border border-[#166D3B]">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">VISUALIZATION</h1>
+        <button 
+          id="ai-generate-btn"
+          onclick="generateAIInsights()"
+          class="bg-[#166D3B] text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-900 disabled:opacity-60 disabled:cursor-not-allowed">
+          🤖 Generate AI Insights
+        </button>
+
+        <form method="GET" action="{{ url_for('admin.visualization') }}" class="flex items-center">
+          <label class="text-black ml-2 mr-1 font-bold">Year:</label>
+          <select name="year" class="border border-[#166D3B] rounded-lg p-2" onchange="this.form.submit()">
+            {% for y in available_years %}
+              <option value="{{ y }}" {% if year|string == y|string %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+            <option value="All" {% if year|string == 'All' %}selected{% endif %}>All</option>
+          </select>
+
+        <label class="text-black font-bold ml-2 mr-1">Gender:</label>
+        <select name="gender" class="border border-[#166D3B] rounded-lg p-2" onchange="this.form.submit()">
+            <option value="All" {% if gender|string == 'All' %}selected{% endif %}>All</option>
+            <option value="Male" {% if gender|string == 'Male' %}selected{% endif %}>Male</option>
+            <option value="Female" {% if gender|string == 'Female' %}selected{% endif %}>Female</option>
+        </select>
+        </form>
+      </div>
+    </div>
+
+    <div id="charts-container"></div>
+    <div id="ai-insights" class="hidden mt-6 mb-4 p-6 bg-white border border-[#166D3B] rounded-2xl shadow-md">
+      <h2 class="text-xl font-bold mb-2">AI Insights & Recommendations</h2>
+      <p id="ai-insights-text" class="text-gray-800 leading-relaxed"></p>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script id="data-json" type="application/json">
+  {{ all_years_data | tojson }}
+</script>
+
+
+<script>
+try {
+  const allData = JSON.parse(document.getElementById('data-json').textContent || '[]');
+  const container = document.getElementById('charts-container');
+  container.innerHTML = "";
+
+  const ALL_PROGRAMS = ["IT", "HM", "EDUC", "AGRI", "CRIM"];
+  const ALL_LETTERS = Array.from({ length: 18 }, (_, i) => String.fromCharCode(65 + i)); // A-R
+
+  if (!Array.isArray(allData) || allData.length === 0) {
+    container.innerHTML = "<p class='text-center text-gray-600 mt-10'>No data available for the selected year.</p>";
+  } else {
+    allData.forEach((yearData, idx) => {
+      const yearSection = document.createElement('div');
+      yearSection.className = 'mb-10';
+
+      yearSection.innerHTML = `
+        <h2 class="text-xl font-bold mb-4"> Year: ${yearData.year} — Gender: ${yearData.gender}</h2>
+
+        <div class="bg-white p-6 rounded-2xl shadow-md mb-8 border border-[#166D3B]">
+          <h3 class="text-lg font-bold mb-4">Most Chosen Preferred Program</h3>
+          <canvas id="preferredProgramChart-${idx}" height="100"></canvas>
+          <p id="noProgram-${idx}" class="text-gray-500 mt-4 hidden">No program data for this year.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-md border border-[#166D3B]">
+          <h3 class="text-lg font-bold mb-4">Top Chosen Letters</h3>
+          <canvas id="topLettersChart-${idx}" height="100"></canvas>
+          <p id="noLetters-${idx}" class="text-gray-500 mt-4 hidden">No letter data for this year.</p>
+        </div>
+      `;
+      container.appendChild(yearSection);
+
+      const programData = ALL_PROGRAMS.map(prog => {
+        const index = yearData.preferred_labels.indexOf(prog);
+        return index >= 0 ? yearData.preferred_counts[index] : 0;
+      });
+
+      new Chart(document.getElementById(`preferredProgramChart-${idx}`), {
+        type: 'bar',
+        data: {
+          labels: ALL_PROGRAMS,
+          datasets: [{
+            label: 'Number of Students',
+            data: programData,
+            backgroundColor: programData.map(v => v > 0 ? '#166D3B' : 'rgba(0,0,0,0)')
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } },
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      const letterData = ALL_LETTERS.map(letter => {
+        const index = yearData.top_labels.indexOf(letter);
+        return index >= 0 ? yearData.top_counts[index] : 0;
+      });
+
+      new Chart(document.getElementById(`topLettersChart-${idx}`), {
+        type: 'bar',
+        data: {
+          labels: ALL_LETTERS,
+          datasets: [{
+            label: 'Number of Selections',
+            data: letterData,
+            backgroundColor: letterData.map(v => v > 0 ? '#E0A200' : 'rgba(0,0,0,0)')
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    });
+  }
+} catch (err) {
+  console.error("Visualization error:", err);
+  document.getElementById('charts-container').innerHTML =
+    "<p class='text-center text-red-600 mt-10'>An error occurred while rendering charts.</p>";
+}
+
+function generateAIInsights() {
+  const btn = document.getElementById("ai-generate-btn");
+  const originalText = btn.innerHTML;
+
+  // Change button state
+  btn.innerHTML = "⏳ Generating...";
+  btn.disabled = true;
+
+  const allData = JSON.parse(
+    document.getElementById('data-json').textContent || '[]'
+  );
+
+  fetch("/admin/generate_ai_visualization_insights", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: allData })
+  })
+  .then(res => res.json())
+  .then(result => {
+    let cleanText = result.insights.replace(/#+/g, "");
+    document.getElementById("ai-insights-text").innerText = cleanText.trim();
+    document.getElementById("ai-insights").classList.remove("hidden");
+  })
+  .catch(err => {
+    console.error(err);
+    alert("AI error occurred.");
+  })
+  .finally(() => {
+    // Restore button
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  });
+}
+
+</script>
+
+ {% include 'components/footer.html' %}
+
+</body>
+</html>

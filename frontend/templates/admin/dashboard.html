@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN DASHBOARD</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminHeader.html' %}
+
+ {% include 'components/adminSidebar.html' %}
+
+    <!-- MAIN CONTENT -->
+    <div class="flex flex-1">
+        <main class="ml-72 flex-1 p-8 bg-[#f6ebcd] min-h-screen pt-[110px]">
+            <div class="bg-white p-6 shadow-md rounded-2xl mb-6 border border-[#166D3B]">
+                <div>
+                    <p class="text-3xl flex justify-center font-semibold">Hello {{ admin_username }}!</p>
+                    <p class="text-xl flex justify-center">Today is another day of work!</p>
+                </div>              
+            </div>
+
+            <div class="flex justify-center mb-6">
+                <form method="GET" action="{{ url_for('admin.dashboard') }}" class="bg-white border border-[#166D3B] p-3 rounded-lg">
+                    <label class="font-semibold text-[#166D3B]">YEAR:</label>
+                    <select name="year" class=" bg- border border-[#166D3B] rounded-lg p-2 ml-2" onchange="this.form.submit()">
+                        {% for y in available_years %}
+                            <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6  mb-6">
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-[#166D3B]">
+                    <h3 class="text-black text-lg">Total Students</h3>
+                    <p class="text-3xl font-bold text-[#166D3B]">{{ total_students }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-[#166D3B]">
+                    <h3 class="text-black text-lg">Pendings</h3>
+                    <p class="text-3xl font-bold text-[#166D3B]">{{ pending_students }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-[#166D3B]">
+                    <h3 class="text-black text-lg">Active Admins</h3>
+                    <p class="text-3xl font-bold text-[#166D3B]">{{ active_admins }}</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 shadow-md rounded-2xl border border-[#166D3B]">
+                <h2 class="text-2xl flex justify-center font-semibold mb-4">Manage Students</h2>
+                <div class="flex justify-center gap-20">
+                    <form action="/admin/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <input type="file" name="file" accept=".xlsx, .xls" id="fileInput" class="hidden" onchange="document.getElementById('uploadForm').submit();">
+                        <button type="button"
+                            onclick="this.innerText='Uploading...'; document.getElementById('fileInput').click();"
+                            class="bg-[#166D3B] text-white text-lg px-6 py-2 rounded-lg hover:bg-green-700">
+                            Import Excel File
+                        </button>
+                    </form>
+
+                    <button onclick="openAddStudentPopup()"
+                        class="bg-[#E0A200] text-white text-lg px-6 py-2 rounded-lg border border-[#166D3B]">
+                        Add Student Manually
+                    </button>
+                </div>
+            
+            {% if error %}
+            <div class="text-red-600 text-md font-bold mt-2 ">
+                {{ error }}
+            </div>
+            {% endif %}
+            {% if success %}
+            <div class="text-[#166D3B] text-md font-bold mt-2 ">
+                {{ success }}
+            </div>
+            {% endif %}
+            </div>
+
+        </main>        
+    </div>
+
+    <div id="addStudentPopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-[#f6ebcd] p-6 rounded-lg shadow-lg w-[450px] relative">
+            <h2 class="text-2xl font-bold mb-4 text-center">Add Participant</h2>
+            <form action="/admin/addParticipant" method="POST">
+            <div class="mb-4">
+                <label class="block text-black">Fullname</label>
+                <input type="text" name="full_name" required class="w-full bg-white p-2 border border-black rounded">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <div>
+                    <label class="block text-black">Examination ID</label>
+                    <input type="text" name="exam_id" required class="w-full bg-white p-2 border border-black rounded">
+                </div>
+                <div>
+                    <label for="gender" class="block text-black">Gender</label>
+                    <select id="gender" name="gender" class="bg-white block w-full p-2 border border-black rounded" required>
+                        <option value="" selected disabled></option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-black">Email Address</label>
+                <input type="email" name="email" required class="w-full bg-white p-2 border border-black rounded">
+            </div>
+
+            <div class="flex justify-between">
+                <button type="submit"
+                    class="bg-[#166D3B] text-white py-2 px-6 rounded-lg hover:bg-green-700">
+                    Add
+                </button>
+                <button type="button" onclick="closeAddStudentPopup()"
+                    class="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
+                    Cancel
+                </button>
+            </div>
+        </form>    
+        </div>
+    </div>
+
+    <script>
+        function openAddStudentPopup() {
+            document.getElementById("addStudentPopup").classList.remove("hidden");
+        }
+        function closeAddStudentPopup() {
+            document.getElementById("addStudentPopup").classList.add("hidden");
+        }
+    </script>
+
+{% include 'components/footer.html' %}
+
+</body>
+</html>

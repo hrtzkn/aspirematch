@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDENT SIDEBAR</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+<!-- SIDEBAR / BOTTOM NAV -->
+<aside
+  class="
+    fixed z-50 bg-white text-black shadow-md
+    bottom-0 left-0 w-full h-20 rounded-2xl
+    flex 
+    lg:top-[110px] lg:left-6 lg:h-[calc(80vh-70px)] lg:w-64
+    lg:flex-col lg:rounded-2xl lg: border border-[#166D3B]
+  "
+>
+  <nav class="w-full h-full p-4 ">
+    <ul
+      class="
+        flex justify-around items-center h-full space-y-5
+        lg:flex-col lg:items-stretch lg:justify-start
+      "
+    >
+      <!-- HOME -->
+      <li class="hover:bg-[#f6ebcd] lg:w-full rounded-2xl {{ 'bg-[#f6ebcd]' if request.path == url_for('student.home') else '' }}">
+        <a
+          href="{{ url_for('student.home') }}"
+          class="block w-full text-lg lg:text-xl px-4 py-3 text-center lg:text-left"
+        >
+          🏡 <span class="hidden lg:inline">HOME</span>
+        </a>
+      </li>
+
+{% if survey_result_unlocked %}
+<li class="relative hover:bg-[#f6ebcd] lg:w-full rounded-2xl
+    {{ 'bg-[#f6ebcd]' if request.path in [
+        url_for('student.surveyResult'),
+        url_for('student.studentInventoryResult')
+    ] else '' }}">
+
+  <button id="resultsToggle"
+          class="block w-full text-lg lg:text-xl px-4 py-3 text-center lg:text-left">
+    🧾 <span class="hidden lg:inline">RESULTS</span>
+  </button>
+
+  <ul id="resultsSubmenu"
+      class="hidden absolute bottom-20 left-1/2 -translate-x-1/2
+             bg-white rounded-xl shadow-lg w-44
+             lg:static lg:translate-x-0 lg:ml-6 lg:mt-2 lg:mb-2">
+
+    <li class="hover:bg-[#f6ebcd] rounded-xl">
+      <a href="{{ url_for('student.surveyResult') }}" class="block px-4 py-2">
+        💼 Career Interest
+      </a>
+    </li>
+
+    {% if inventory_result_unlocked %}
+    <li class="hover:bg-[#f6ebcd] rounded-xl">
+      <a href="{{ url_for('student.studentInventoryResult') }}" class="block px-4 py-2">
+        📦 Inventory
+      </a>
+    </li>
+    {% endif %}
+
+  </ul>
+</li>
+{% endif %}
+
+
+      <!-- NOTIFICATION -->
+      <li class="relative hover:bg-[#f6ebcd] lg:w-full rounded-2xl
+          {{ 'bg-[#f6ebcd]' if request.path == url_for('student.notification') else '' }}">
+
+          <a href="{{ url_for('student.notification') }}"
+            onclick="clearNotificationBadge()"
+            class="flex items-center justify-between text-lg lg:text-xl px-4 py-3">
+
+            <span>
+              🔔 <span class="hidden lg:inline">NOTIFICATION</span>
+            </span>
+
+            <span id="notificationBadge"
+                  class="hidden bg-red-600 text-white text-sm px-2 py-0.5 rounded-full">
+              0
+            </span>
+          </a>
+      </li>
+
+      <!-- PROFILE -->
+      <li class="hover:bg-[#f6ebcd] lg:w-full rounded-2xl {{ 'bg-[#f6ebcd]' if request.path == url_for('student.profile') else '' }}">
+        <a
+          href="{{ url_for('student.profile') }}""
+          class="block text-lg lg:text-xl px-4 py-3 text-center lg:text-left"
+        >
+          👤 <span class="hidden lg:inline">PROFILE</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</aside>
+
+<!-- spacer for mobile bottom nav -->
+<div class="h-20 lg:hidden"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // -------------------------------
+  // Notification Count Loader
+  // -------------------------------
+  async function loadNotificationCount() {
+      try {
+          const res = await fetch("/student/notification_count");
+          const data = await res.json();
+
+          const badge = document.getElementById("notificationBadge");
+          if (!badge) return;
+
+          // If currently on notification page, always hide
+          if (window.location.pathname === "/student/notification") {
+              badge.classList.add("hidden");
+              return;
+          }
+
+          if (data.count > 0) {
+              badge.textContent = data.count;
+              badge.classList.remove("hidden");
+          } else {
+              badge.classList.add("hidden");
+          }
+      } catch (err) {
+          console.error("Notification count error:", err);
+      }
+  }
+
+  // Load immediately
+  loadNotificationCount();
+
+  // Refresh every 10 seconds
+  setInterval(loadNotificationCount, 10000);
+
+  // -------------------------------
+  // Results submenu toggle
+  // -------------------------------
+  const toggle = document.getElementById("resultsToggle");
+  const submenu = document.getElementById("resultsSubmenu");
+
+  toggle?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      submenu.classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", () => {
+      submenu?.classList.add("hidden");
+  });
+
+});
+
+// -------------------------------
+// Clear badge on nav click
+// -------------------------------
+function clearNotificationBadge() {
+    const badge = document.getElementById("notificationBadge");
+    if (badge) {
+        badge.classList.add("hidden");
+        badge.textContent = "0";
+    }
+
+    // Mark notifications as read (fire-and-forget)
+    fetch("/student/notification_mark_all_read", {
+        method: "POST"
+    }).catch(err => console.error(err));
+}
+</script>
+
+
+</body>
+
+</html>

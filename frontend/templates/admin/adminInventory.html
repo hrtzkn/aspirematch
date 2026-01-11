@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN INVENTORY </title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminHeader.html' %}
+
+ {% include 'components/adminSidebar.html' %}
+
+<!-- MAIN CONTENT -->
+<div class="flex flex-1">
+  <main class="ml-72 flex-1 p-8 bg-[#f6ebcd] min-h-screen pt-[100px]">
+    <div class="bg-white p-3 shadow-md rounded-2xl mb-2 left-80 right-8 border border-[#166D3B]">
+      <div class="flex flex-wrap justify-between items-center gap-4">
+        <h1 class="text-2xl font-bold text-[#166D3B]">INVENTORY</h1>
+
+        <form method="GET" action="{{ url_for('admin.adminInventory') }}" class="flex items-center">
+          <label class="text-black ml-2 mr-1">Year:</label>
+          <select name="year" class="border border-[#166D3B] rounded-lg p-2" onchange="this.form.submit()">
+            {% for y in available_years %}
+              <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+          </select>
+        </form>
+
+        <form method="GET" action="{{ url_for('admin.adminInventory') }}" class="flex items-center">
+          <input type="hidden" name="year" value="{{ year }}">
+          <input type="hidden" name="q" value="{{ search_query }}">
+
+          <label class="text-black mr-2">Sort by:</label>
+          <select name="sort" class="border border-[#166D3B] rounded-lg p-2" onchange="this.form.submit()">
+              <option value="" {% if sort == '' %}selected{% endif %}>Default</option>
+              <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name A–Z</option>
+              <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name Z–A</option>
+              <option value="income_asc" {% if sort == 'income_asc' %}selected{% endif %}>Income Low → High</option>
+              <option value="income_desc" {% if sort == 'income_desc' %}selected{% endif %}>Income High → Low</option>
+              <option value="cat_asc" {% if sort == 'cat_asc' %}selected{% endif %}>Category A–Z</option>
+              <option value="cat_desc" {% if sort == 'cat_desc' %}selected{% endif %}>Category Z–A</option>
+          </select>
+        </form>
+
+        <form method="GET" action="{{ url_for('admin.adminInventory') }}" class="flex items-center ml-4">
+          <input type="hidden" name="year" value="{{ year }}">
+          <input type="text" name="q" value="{{ search_query }}" class="p-2 border border-[#166D3B] rounded-lg text-gray-700 w-52"
+            placeholder="🔎 Search student...">
+          <button type="submit" class="ml-2 bg-[#E0A200] text-white px-4 py-2 rounded-lg hover:bg-[#145c33]">Search</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="bg-white p-3 shadow-md rounded-2xl mt-4 mb-4 border border-[#166D3B]">
+      <table class="min-w-full border border-gray-300 rounded-lg overflow-hidden text-md">
+        <thead>
+          <tr class="bg-[#166D3B] text-white text-left">
+            <th class="py-2 px-4 border text-center">Exam ID</th>
+            <th class="py-2 px-4 border">Student Name</th>
+            <th class="py-2 px-4 border text-center">Total Income</th>
+            <th class="py-2 px-4 border text-center">
+                <button 
+                    id="incomeInfoBtn">
+                    Income Category
+                </button>
+            </th>
+            <th class="py-2 px-4 border text-center">Inventory</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if students %}
+            {% for student in students %}
+              <tr class="hover:bg-gray-100">
+                <td class="py-2 px-4 border text-center">{{ student[0] }}</td>
+                <td class="py-2 px-4 border">{{ student[1] }}</td>
+        
+                <td class="py-2 px-4 border text-center">
+                  {% if student[2] %}
+                    ₱{{ "{:,}".format(student[2]) }}
+                  {% else %}
+                    _____
+                  {% endif %}
+                </td>
+
+                <td class="py-2 px-4 border text-center">
+                  {{ student[3] if student[3] != "____" else "____" }}
+                </td>
+
+                <td class="py-2 px-4 border text-center">
+                  {% if student[2] %}
+                    <a href="{{ url_for('admin.adminInventoryResult', student_id=student[0]) }}"
+                      class="bg-[#166D3B] text-white px-3 py-1 rounded-lg shadow hover:bg-[#145c33]">
+                      Result
+                    </a>
+                  {% else %}
+                    _____
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="3" class="text-center py-4 text-gray-500">No students found</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+
+      <div class="flex justify-between items-center mt-4">
+
+        {% if page > 1 %}
+          <a href="{{ url_for('admin.adminInventory', year=year, q=search_query, sort=sort, page=page-1) }}"
+            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+            ⬅ Back
+          </a>
+        {% else %}
+          <span class="px-4 py-2 text-gray-400">⬅ Back</span>
+        {% endif %}
+
+        <span class="text-gray-700">Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+          <a href="{{ url_for('admin.adminInventory', year=year, q=search_query, sort=sort, page=page+1) }}"
+            class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+            Next ➡
+          </a>
+        {% else %}
+          <span class="px-4 py-2 text-gray-400">Next ➡</span>
+        {% endif %}
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Income Info Modal -->
+<div id="incomeModal" class="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 hidden">
+    <div class="bg-white p-6 rounded-xl shadow-lg w-80 relative">
+
+        <h2 class="text-xl font-bold mb-4 text-center">Income Info</h2>
+
+        <ul class="space-y-2 text-gray-700">
+            <li><strong>Low income:</strong> less than ₱10,000</li>
+            <li><strong>Lower-Middle:</strong> ₱10,000 – ₱20,000</li>
+            <li><strong>Middle:</strong> ₱20,001 – ₱40,000</li>
+            <li><strong>Middle-Upper:</strong> ₱40,001 – ₱80,000</li>
+            <li><strong>High income:</strong> above ₱80,000</li>
+        </ul>
+
+        <button 
+            id="closeIncomeModal"
+            class="mt-5 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+        >
+            Close
+        </button>
+    </div>
+</div>
+
+<script>
+    const incomeBtn = document.getElementById("incomeInfoBtn");
+    const incomeModal = document.getElementById("incomeModal");
+    const closeIncome = document.getElementById("closeIncomeModal");
+
+    // Open modal
+    incomeBtn.addEventListener("click", () => {
+        incomeModal.classList.remove("hidden");
+    });
+
+    // Close modal button
+    closeIncome.addEventListener("click", () => {
+        incomeModal.classList.add("hidden");
+    });
+
+    // Close when clicking background
+    incomeModal.addEventListener("click", (e) => {
+        if (e.target === incomeModal) {
+            incomeModal.classList.add("hidden");
+        }
+    });
+</script>
+
+    {% include 'components/footer.html' %}
+
+</body>
+</html>

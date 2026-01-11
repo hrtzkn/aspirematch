@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/studentHeader.html' %}
+<div class="flex flex-1">
+<main class="flex-grow flex items-center justify-center mt-24 mb-10">
+<form method="POST" action="{{ url_for('student.studentInventoryForm') }}" class="space-y-6">
+
+  <!-- Section 1 -->
+  <section id="section1" class="section w-[800px] p-10 bg-white shadow-xl rounded-lg">
+      <h3 class="text-2xl font-semibold">Personal Information</h3>
+
+      <div class="grid grid-cols-2 gap-4 mt-4">
+          <div>
+              <label class="font-semibold mt-2 block">Name</label>
+              <input type="text" value="{{ student[0] }}" readonly
+                     class="w-full border border-black rounded px-4 py-2 bg-gray-100 cursor-not-allowed">
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">Nickname</label>
+              <input type="text" name="nickname" class="w-full border border-black rounded px-4 py-2" required>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+          <div>
+              <label class="font-semibold mt-2 block">Present Address</label>
+              <input type="text" name="present_address" class="w-full border border-black rounded px-4 py-2" required>
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">Provincial Address</label>
+              <input type="text" name="provincial_address" class="w-full border border-black rounded px-4 py-2" required>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+          <div>
+              <label class="font-semibold mt-2 block">Date of Birth</label>
+              <input type="date" name="date_of_birth" onclick="this.showPicker()"  class="w-[175px] border border-black rounded px-4 py-2" required>
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">Place of Birth</label>
+              <input type="text" name="place_of_birth" class="w-full border border-black rounded px-4 py-2" required>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+          <div>
+              <label class="font-semibold mt-2 block">Age</label>
+              <input type="number" name="age" class="w-full border border-black rounded px-4 py-2" required>
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">Birth Order</label>
+              <input type="text" name="birth_order" class="w-full border border-black rounded px-4 py-2" required>
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">No. of Siblings</label>
+              <input type="number" name="siblings_count" class="w-full border border-black rounded px-4 py-2" required>
+          </div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-4">
+          <div>
+              <label class="font-semibold mt-2 block">Gender</label>
+              <input type="text" value="{{ student[1] }}" readonly
+                     class="w-full border border-black rounded px-4 py-2 bg-gray-100 cursor-not-allowed">
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">Civil Status</label>
+              <select name="civil_status" class="block w-full p-2 border border-black rounded" required>
+                  <option value="" selected disabled></option>
+                  <option>Single</option>
+                  <option>Married</option>
+                  <option>Separated</option>
+                  <option>Widowed</option>
+              </select>
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">Religion</label>
+              <input type="text" name="religion" class="block w-full p-2 border border-black rounded" required>
+          </div>
+          <div>
+              <label class="font-semibold mt-2 block">Nationality</label>
+              <input type="text" name="nationality" class="block w-full p-2 border border-black rounded" required>
+          </div>
+      </div>
+
+      <p id="personal-info-error1" class="text-red-600 text-center mt-2 hidden"></p>
+
+    <div class="flex justify-between mt-3">
+        <a href="{{ url_for('student.studentInventory') }}" class="px-6 py-2 bg-gray-300 rounded">BACK</a>
+        <button type="button" onclick="validateSection1()"
+                class="bg-[#166D3B] text-white px-6 py-2 rounded hover:bg-green-700">Next</button>
+    </div>
+  </section>
+
+  <!-- Section 2 -->
+  <section id="section2" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+      <h3 class="text-2xl font-semibold">Personal Information</h3>
+
+      <div class="grid grid-cols-3 gap-4 mt-4">
+          <div>
+              <label class="block mt-2">Home Phone No.</label>
+              <input type="text" name="home_phone" class="block w-full p-2 border border-black rounded">
+          </div>
+          <div>
+              <label class="block mt-2">Mobile No.</label>
+              <input type="text" name="mobile_no" class="block w-full p-2 border border-black rounded" required>
+          </div>
+          <div>
+              <label class="block mt-2">Email</label>
+              <input type="email" name="email" value="{{ student[2] }}" class="block w-full p-2 border border-black rounded">
+          </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+          <div><label class="block mt-2">Weight</label><input name="weight" class="block w-full p-2 border border-black rounded" required></div>
+          <div><label class="block mt-2">Height</label><input name="height" class="block w-full p-2 border border-black rounded" required></div>
+          <div><label class="block mt-2">Blood Type</label><input name="blood_type" class="block w-full p-2 border border-black rounded" required></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+          <div><label class="block mt-2">Hobbies</label><input name="hobbies" class="block w-full p-2 border border-black rounded" required></div>
+          <div><label class="block mt-2">Talents</label><input name="talents" class="block w-full p-2 border border-black rounded" required></div>
+      </div>
+
+      <h4 class="mt-2 font-semibold">Emergency Contact</h4>
+      <div class="grid grid-cols-2 gap-4">
+          <div><label class="block mt-2">Name to notify:</label><input name="emergency_name" class="block w-full p-2 border border-black rounded" required></div>
+          <div><label class="block mt-2">Relationship:</label><input name="emergency_relationship" class="block w-full p-2 border border-black rounded" required></div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+          <div><label class="block mt-2">Address:</label><input name="emergency_address" class="block w-full p-2 border border-black rounded" required></div>
+          <div><label class="block mt-2">Contact No.:</label><input name="emergency_contact" class="block w-full p-2 border border-black rounded" required></div>
+      </div>
+
+      <p id="personal-info-error2" class="text-red-600 text-center mt-2 hidden"></p>
+
+      <div class="flex justify-between mt-3">
+        <button type="button" onclick="goToSection(1)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+        <button type="button" onclick="validateSection2()" class="bg-[#166D3B] text-white px-6 py-2 rounded hover:bg-green-700">Next</button>
+      </div>
+  </section>
+
+  <!-- Section 3 -->
+<section id="section3" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mb-6">Family Background</h3>
+
+    <div class="grid grid-cols-3 font-semibold mb-2">
+        <div class="text-center">FATHER</div>
+        <div></div>
+        <div class="text-center">MOTHER</div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        <input type="text" name="father_name" class="p-2 border border-black rounded w-full">
+        <label class="text-sm font-medium flex justify-center mt-2">NAME:</label>
+        <input type="text" name="mother_name" class="p-2 border border-black rounded w-full">
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        <input type="number" name="father_age" class="p-2 border border-black rounded w-full">
+        <label class="flex justify-center text-sm font-medium mt-2">AGE:</label>
+        <input type="number" name="mother_age" class="p-2 border border-black rounded w-full">
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        <input type="text" name="father_education" class="p-2 border border-black rounded w-full">
+        <label class="flex justify-center text-[12px] font-medium mt-2">HIGHEST EDUCATIONAL ATTAINMENT:</label>
+        <input type="text" name="mother_education" class="p-2 border border-black rounded w-full">
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        <input type="text" name="father_occupation" class="p-2 border border-black rounded w-full">
+        <label class="flex justify-center text-sm font-medium mt-2">OCCUPATION:</label>
+        <input type="text" name="mother_occupation" class="p-2 border border-black rounded w-full">
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        <input type="number" name="father_income" class="p-2 border border-black rounded w-full">
+        <label class="flex justify-center text-sm font-medium mt-2">AVERAGE INCOME PER MONTH:</label>
+        <input type="number" name="mother_income" class="p-2 border border-black rounded w-full">
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+        <input type="number" name="father_contact" class="p-2 border border-black rounded w-full">
+        <label class="flex justify-center text-sm font-medium mt-2">CONTACT NUMBER/S:</label>
+        <input type="number" name="mother_contact" class="p-2 border border-black rounded w-full">
+    </div>
+
+    <div class="flex justify-between mt-3">
+        <button type="button" onclick="goToSection(2)" class="bg-gray-300 px-6 py-2 rounded">
+            Previous
+        </button>
+        <button type="button" onclick="goToSection(4)" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">
+            Next
+        </button>
+    </div>
+</section>
+
+<!-- Section 4 -->
+<section id="section4" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-8">Status of Parents</h3>
+
+    <div class="mt-4">
+        <div class="grid grid-cols-3 gap-4 mt-4">
+            <div>
+                <input type="checkbox" name="married_living_together" value="1">
+                <label class="ml-2">Married & Living Together</label>
+            </div>
+            <div>
+                <input type="checkbox" name="living_not_married" value="1">
+                <label class="ml-2">Living in (Not Married)</label>
+            </div>
+            <div>
+                <input type="checkbox" name="legally_separated" value="1">
+                <label class="ml-2">Legally Separated</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <input type="checkbox" name="mother_widow" value="1">
+                <label class="ml-2">Mother (Widow)</label>
+            </div>
+            <div>
+                <input type="checkbox" name="father_widower" value="1">
+                <label class="ml-2">Father (Widower)</label>
+            </div>
+            <div>
+                <input type="checkbox" name="separated" value="1">
+                <label class="ml-2">Separated</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <input type="checkbox" name="father_another_family" value="1">
+                <label class="ml-1">Father is with another family</label>
+            </div>
+            <div>
+                <input type="checkbox" name="mother_another_family" value="1">
+                <label class="ml-1">Mother is with another family</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-between mt-3">
+        <button type="button" onclick="goToSection(3)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+        <button type="button" onclick="goToSection(5)" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">
+            Next
+        </button>
+    </div>
+</section>
+
+<!-- Section 5 -->
+<section id="section5" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-2 mb-4">Academic Information:</h3>
+    <div class="grid grid-cols-4 font-semibold text-center">
+        <div class="p-2 border border-black">LEVEL</div>
+        <div class="p-2 border border-black">NAME OF SCHOOL</div>
+        <div class="p-2 border border-black">YEAR GRADUATED</div>
+        <div class="p-2 border border-black">AWARDS RECEIVED</div>
+    </div>
+
+    <div class="grid grid-cols-4">
+        <div class="p-2 text-[14px] border border-black font-semibold">ELEMENTARY:</div>
+        <input type="text" name="elementary_school_name" class="p-2 border border-black" required>
+        <input type="number" name="elementary_year_graduated" class="p-2 border border-black" required>
+        <input type="text" name="elementary_awards" class="p-2 border border-black" required>
+    </div>
+
+    <div class="grid grid-cols-4">
+        <div class="p-2 border text-[14px] border-black font-semibold">JUNIOR HIGH SCHOOL:</div>
+        <input type="text" name="junior_high_school_name" class="p-2 border border-black" required>
+        <input type="number" name="junior_high_year_graduated" class="p-2 border border-black" required>
+        <input type="text" name="junior_high_awards" class="p-2 border border-black" required>
+    </div>
+
+    <div class="grid grid-cols-4">
+        <div class="p-2 border text-[14px] border-black font-semibold">
+            SENIOR HIGH SCHOOL:
+            <div class="mt-2">
+                <div class="flex gap-2 items-center">
+                    <label for="senior_track" class="text-[12px]">TRACK:</label>
+                    <input type="text" name="senior_high_track" class="border-b border-black px-2 py-1 text-[12px] w-full" required>
+                </div>
+                <div class="flex gap-2 items-center mt-1">
+                    <label for="senior_strand" class="text-[12px]">STRAND:</label>
+                    <input type="text" name="senior_high_strand" class="border-b border-black px-2 py-1 text-[12px] w-full" required>
+                </div>
+            </div>
+        </div>
+        <input type="text" name="senior_high_school_name" class="p-2 border border-black" required>
+        <input type="number" name="senior_high_year_graduated" class="p-2 border border-black" required>
+        <input type="text" name="senior_high_awards" class="p-2 border border-black" required>
+    </div>
+
+      <p id="academic-info-error1" class="text-red-600 text-center mt-2 hidden"></p>
+
+      <div class="flex justify-between mt-3">
+        <button type="button" onclick="goToSection(4)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+        <button type="button" onclick="validateSection5()" class="bg-[#166D3B] text-white px-6 py-2 rounded hover:bg-green-700">Next</button>
+      </div>
+</section>
+
+<!-- Section 6 -->
+<section id="section6" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+  <h3 class="text-2xl font-semibold mt-1 mb-2">Academic Information:</h3>
+
+  <div class="grid grid-cols-1 gap-4">
+    <div>
+      <label class="block font-semibold mt-2">Subject interested to:</label>
+      <input type="text" name="subject_interested" class="w-full border border-black rounded px-4 py-2" required>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4">
+    <div>
+      <label class="block font-semibold mt-2">Organization Membership:</label>
+      <input type="text" name="org_membership" class="w-full border border-black rounded px-4 py-2" required>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4">
+    <div>
+      <label class="block font-semibold mt-2">How is your studies financed?</label>
+      <input type="text" name="study_finance" class="w-full border border-black rounded px-4 py-2" required>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 justify-between gap-4">
+    <div>
+      <label class="block font-semibold mt-2">Is your present course / program your personal choice?</label>
+      <span id="error-course-choice" class="text-red-600 text-sm mt-1 hidden">Please select Yes or No before proceeding.</span>
+    </div>
+
+    <div class="mt-2">
+      <input type="radio" name="course_personal_choice" value="yes">
+      <label>YES</label>
+
+      <input type="radio" name="course_personal_choice" value="no" class="ml-4">
+      <label>NO</label>
+    </div>
+  </div>
+
+  <p id="academic-info-error2" class="text-red-600 text-sm mb-2 hidden"></p>
+
+  <div class="flex justify-between mt-6">
+    <button type="button" onclick="goToSection(5)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="button" onclick="validateSection6()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">
+      Next
+    </button>
+  </div>
+</section>
+
+<section id="section7" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-1 mb-2">Academic Information:</h3>
+
+    <div class="grid grid-cols-1 gap-4">
+        <div>
+            <label class="block  font-semibold mt-2">If NO,</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4">
+        <div>
+            <label class="block font-semibold mt-2">A. Who influenced you?</label>
+            <input type="text" name="influenced_by" class="w-full border border-black rounded px-4 py-2" required>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4">
+        <div>
+            <label class="block font-semibold mt-2">B. How do you feel about the course not being your first choice?</label>
+            <input type="text" name="feeling_about_course" class="w-full border border-black rounded px-4 py-2" required>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4">
+        <div>
+            <label class="block font-semibold mt-2">C. What is your personal choice?</label>
+            <input type="text" name="personal_choice" class="w-full border border-black rounded px-4 py-2" required>
+        </div>
+    </div>
+
+  <p id="academic-info-error3" class="text-red-600 text-sm mt-2 hidden"></p>
+
+  <div class="flex justify-between mt-3">
+    <button type="button" onclick="goToSection(6)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="button" onclick="validateSection7()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">
+      Next
+    </button>
+  </div>
+</section>
+
+<section id="section8" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-8">Why did you choose to enroll in CPSU?</h3>
+
+    <div class="mt-4 grid grid-cols-3 gap-4">
+        <div><input type="checkbox" name="enroll_reasons" value="Quality education"> <label>Quality education</label></div>
+        <div><input type="checkbox" name="enroll_reasons" value="Free tuition fee"> <label>Free tuition fee</label></div>
+        <div><input type="checkbox" name="enroll_reasons" value="Competitive Faculty Members"> <label>Competitive Faculty Members</label></div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-3 gap-4">
+        <div><input type="checkbox" name="enroll_reasons" value="Good facilities"> <label>Good facilities</label></div>
+        <div><input type="checkbox" name="enroll_reasons" value="Proximity and accessibility"> <label>Proximity and accessibility</label></div>
+        <div><input type="checkbox" name="enroll_reasons" value="Good reputation"> <label>Good reputation</label></div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4">
+        <div><input type="checkbox" name="enroll_reasons" value="Recommended by friends, relatives, etc."> <label>Recommended by friends, relatives, etc.</label></div>
+        <div><input type="checkbox" name="enroll_reasons" value="Performance in the licensure examination"> <label>Performance in the licensure examination</label></div>
+    </div>
+
+    <div class="mt-4">
+        <label>Others, please specify:</label>
+        <input type="text" name="other_reason" class="w-full border border-black rounded px-4 py-2">
+        <span id="enrollCpsuError" class="text-red-600 text-sm mt-1 hidden">Please select at least one reason or specify in 'Others' before proceeding.</span>
+    </div>
+
+    <div class="flex justify-between mt-6">
+        <button type="button" onclick="goToSection(7)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+        <button type="button" onclick="validateEnrollReasons()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">Next</button>
+    </div>
+</section>
+
+<!-- Section 9 -->
+<section id="section9" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-8">What other school do you consider?</h3>
+
+    <div class="mt-4 grid grid-cols-5 gap-4">
+        <div><input type="checkbox" name="other_school" value="SUNN"> <label>SUNN</label></div>
+        <div><input type="checkbox" name="other_school" value="CHMSU"> <label>CHMSU</label></div>
+        <div><input type="checkbox" name="other_school" value="PNU-V"> <label>PNU-V</label></div>
+        <div><input type="checkbox" name="other_school" value="TAÑON"> <label>TAÑON</label></div>
+        <div><input type="checkbox" name="other_school" value="CSTR"> <label>CSTR</label></div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-5 gap-4">
+        <div><input type="checkbox" name="other_school" value="UNO R"> <label>UNO R</label></div>
+        <div><input type="checkbox" name="other_school" value="NORSU"> <label>NORSU</label></div>
+        <div><input type="checkbox" name="other_school" value="TUP-V"> <label>TUP-V</label></div>
+        <div><input type="checkbox" name="other_school" value="CSR"> <label>CSR</label></div>
+    </div>
+
+    <div class="mt-4">
+        <label>Others, please specify:</label>
+        <input type="text" id="otherSchoolInput" name="other_school_other" class="w-full border border-black rounded px-4 py-2">
+        <span id="schoolConsiderError" class="text-red-600 text-sm mt-1 hidden">
+            Please select at least one school or specify in 'Others' before proceeding.
+        </span>
+    </div>
+
+    <div class="flex justify-between mt-6">
+        <button type="button" onclick="goToSection(8)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+        <button type="button" onclick="validateOtherSchool()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">Next</button>
+    </div>
+</section>
+
+<section id="section10" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-2 mb-4">Behavior Information:</h3>
+
+    <div class="grid grid-cols-3 font-semibold text-center">
+        <div class="p-2 border border-black bg-gray-100">Check if you ever experience the following concerns:</div>
+        <div class="p-2 border border-black bg-gray-100">When did it happen?</div>
+        <div class="p-2 border border-black bg-gray-100">Does it still bother you?</div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="bullying"  name="bullying" value="yes">
+            <label for="bullying">Bullying</label>
+        </div>
+        <input type="text" name="bullying_when" class="p-2 border border-black" placeholder="e.g., High school">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" name="bullying_bother" value="yes" id="bullying_bother_yes">
+            <label for="bullying_bother_yes">YES</label>
+            <input type="radio" name="bullying_bother" value="no" id="bullying_bother_no" class="ml-4">
+            <label for="bullying_bother_no">NO</label>
+        </div>
+    </div>
+
+    <!-- Suicidal thoughts -->
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="suicidal_thoughts" name="suicidal_thoughts" value="yes">
+            <label for="suicidal_thoughts">Suicidal thoughts</label>
+        </div>
+        <input type="text" name="suicidal_thoughts_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" name="suicidal_thoughts_bother" value="yes" id="suicidal_thoughts_bother_yes">
+            <label for="suicidal_thoughts_bother_yes">YES</label>
+            <input type="radio" name="suicidal_thoughts_bother" value="no" id="suicidal_thoughts_bother_no" class="ml-4">
+            <label for="suicidal_thoughts_bother_no">NO</label>
+        </div>
+    </div>
+
+    <!-- Suicidal attempts -->
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="suicidal_attempts" name="suicidal_attempts" value="yes">
+            <label for="suicidal_attempts">Suicidal attempts</label>
+        </div>
+        <input type="text" name="suicidal_attempts_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" name="suicidal_attempts_bother" value="yes" id="suicidal_attempts_bother_yes">
+            <label for="suicidal_attempts_bother_yes">YES</label>
+            <input type="radio" name="suicidal_attempts_bother" value="no" id="suicidal_attempts_bother_no" class="ml-4">
+            <label for="suicidal_attempts_bother_no">NO</label>
+        </div>
+    </div>
+
+    <!-- Panic attacks -->
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="panic_attacks" name="panic_attacks" value="yes">
+            <label for="panic_attacks">Panic attacks</label>
+        </div>
+        <input type="text" name="panic_attacks_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" name="panic_attacks_bother" id="panic_attacks_bother_yes" value="yes">
+            <label for="panic_attacks_bother_yes">YES</label>
+            <input type="radio" name="panic_attacks_bother" id="panic_attacks_bother_no" value="no" class="ml-4">
+            <label for="panic_attacks_bother_no">NO</label>
+        </div>
+    </div>
+
+    <!-- Anxiety -->
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="anxiety" name="anxiety" value="yes">
+            <label for="anxiety">Anxiety</label>
+        </div>
+        <input type="text" name="anxiety_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="anxiety_bother_yes" name="anxiety_bother" value="yes">
+            <label for="anxiety_bother_yes">YES</label>
+            <input type="radio" id="anxiety_bother_no" name="anxiety_bother" value="no" class="ml-4">
+            <label for="anxiety_bother_no">NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="depression" name="depression" value="yes">
+            <label for="depression">Depression</label>
+        </div>
+        <input type="text" name="depression_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="depression_bother_yes" name="depression_bother" value="yes">
+            <label for="depression_bother_yes">YES</label>
+            <input type="radio" id="depression_bother_no" name="depression_bother" value="no" class="ml-4">
+            <label for="depression_bother_no">NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="self_anger_issues" name="self_anger_issues" value="yes">
+            <label for="self_anger_issues">Self / Anger Management Issues</label>
+        </div>
+        <input type="text" name="self_anger_issues_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="self_anger_issues_bother_yes" name="self_anger_issues_bother" value="yes">
+            <label for="self_anger_issues_bother_yes">YES</label>
+            <input type="radio" id="self_anger_issues_bother_no" name="self_anger_issues_bother" value="no" class="ml-4">
+            <label for="self_anger_issues_bother_no">NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="recurring_negative_thoughts" name="recurring_negative_thoughts" value="yes">
+            <label for="recurring_negative_thoughts">Recurring negative thoughts</label>
+        </div>
+        <input type="text" name="recurring_negative_thoughts_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="recurring_negative_thoughts_bother_yes" name="recurring_negative_thoughts_bother" value="yes">
+            <label for="recurring_negative_thoughts_bother_yes">YES</label>
+            <input type="radio" id="recurring_negative_thoughts_bother_no" name="recurring_negative_thoughts_bother" value="no" class="ml-4">
+            <label for="recurring_negative_thoughts_bother_no">NO</label>
+        </div>
+    </div>
+
+  <p id="behavior-warning-10" class="text-red-600 text-center mt-4 hidden text-sm"></p>
+
+  <div class="flex justify-between mt-6">
+    <button type="button" onclick="goToSection(9)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="button" onclick="validateBehaviorSection10()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">Next</button>
+  </div>
+</section>
+
+<section id="section11" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+  <h3 class="text-2xl font-semibold mt-2 mb-4">Behavior Information:</h3>
+  <div class="grid grid-cols-3 font-semibold text-center">
+    <div class="p-2 border border-black">Check if you ever experience the following concerns:</div>
+    <div class="p-2 border border-black">When did it happen?</div>
+    <div class="p-2 border border-black">Does it still bothering you?</div>
+  </div>
+
+  <div class="grid grid-cols-3">
+    <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+      <input type="checkbox" id="low_self_esteem" name="low_self_esteem" value="yes">
+      <label>Low self-esteem</label>
+    </div>
+    <input type="text" name="low_self_esteem_when" class="p-2 border border-black">
+    <div class="text-center p-2 border border-black">
+      <input type="radio" name="low_self_esteem_bother" value="yes" id="low_self_esteem_bother_yes">
+      <label>YES</label>
+      <input type="radio" name="low_self_esteem_bother" value="no" id="low_self_esteem_bother_no" class="ml-4">
+      <label>NO</label>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3">
+    <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+      <input type="checkbox" id="poor_study_habits" name="poor_study_habits" value="yes">
+      <label>Poor study habits</label>
+    </div>
+    <input type="text" name="poor_study_habits_when" class="p-2 border border-black">
+    <div class="text-center p-2 border border-black">
+      <input type="radio" name="poor_study_habits_bother" value="yes" id="poor_study_habits_bother_yes">
+      <label>YES</label>
+      <input type="radio" name="poor_study_habits_bother" value="no" id="poor_study_habits_bother_no" class="ml-4">
+      <label>NO</label>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3">
+    <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+      <input type="checkbox" id="poor_in_decision_making" name="poor_in_decision_making" value="yes">
+      <label>Poor in decision making</label>
+    </div>
+    <input type="text" name="poor_in_decision_making_when" class="p-2 border border-black">
+    <div class="text-center p-2 border border-black">
+      <input type="radio" name="poor_in_decision_making_bother" value="yes" id="poor_in_decision_making_bother_yes">
+      <label>YES</label>
+      <input type="radio" name="poor_in_decision_making_bother" value="no" id="poor_in_decision_making_bother_no" class="ml-4">
+      <label>NO</label>
+    </div>
+  </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="impulsivity" name="impulsivity" value="yes">
+            <label>Impulsivity</label>
+        </div>
+        <input type="text" name="impulsivity_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="impulsivity_bother_yes" name="impulsivity_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="impulsivity_bother_no" name="impulsivity_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="poor_sleeping_habits" name="poor_sleeping_habits" value="yes">
+            <label>Poor sleeping habits</label>
+        </div>
+        <input type="text" name="poor_sleeping_habits_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="poor_sleeping_habits_bother_yes" name="poor_sleeping_habits_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="poor_sleeping_habits_bother_no" name="poor_sleeping_habits_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="loos_of_appetite" name="loos_of_appetite" value="yes">
+            <label>Loss of appetite</label>
+        </div>
+        <input type="text" name="loos_of_appetite_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="loos_of_appetite_bother_yes" name="loos_of_appetite_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="loos_of_appetite_bother_no" name="loos_of_appetite_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="over_eating" name="over_eating" value="yes">
+            <label>Over-eating</label>
+        </div>
+        <input type="text" name="over_eating_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="over_eating_bother_yes" name="over_eating_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="over_eating_bother_no" name="over_eating_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="poor_hygiene" name="poor_hygiene" value="yes">
+            <label>Poor hygiene</label>
+        </div>
+        <input type="text" name="poor_hygiene_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="poor_hygiene_bother_yes" name="poor_hygiene_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="poor_hygiene_bother_no" name="poor_hygiene_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+  <p id="behavior-warning-11" class="text-red-600 text-center mt-4 hidden text-sm"></p>
+
+  <div class="flex justify-between mt-6">
+    <button type="button" onclick="goToSection(10)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="button" onclick="validateBehaviorSection11()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">Next</button>
+  </div>
+</section>
+
+<section id="section12" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-2 mb-4">Behavior Information:</h3>
+    <div class="grid grid-cols-3 font-semibold text-center">
+        <div class="p-2 border border-black">Check if you ever experience the following concerns:</div>
+        <div class="p-2 border border-black">When did it happen?</div>
+        <div class="p-2 border border-black">Does it still bothering you?</div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="withdrawal_isolation" name="withdrawal_isolation" value="yes">
+            <label>Withdrawal / Isolation</label>
+        </div>
+        <input type="text" name="withdrawal_isolation_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="withdrawal_isolation_bother_yes" name="withdrawal_isolation_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="withdrawal_isolation_bother_no" name="withdrawal_isolation_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="family_problem" name="family_problem" value="yes">
+            <label>Family problem</label>
+        </div>
+        <input type="text" name="family_problem_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="family_problem_bother_yes" name="family_problem_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="family_problem_bother_no" name="family_problem_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="other_relationship_problem" name="other_relationship_problem" value="yes">
+            <label>Other relationship problems</label>
+        </div>
+        <input type="text" name="other_relationship_problem_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="other_relationship_problem_bother_yes" name="other_relationship_problem_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="other_relationship_problem_bother_no" name="other_relationship_problem_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="alcohol_addiction" name="alcohol_addiction" value="yes">
+            <label>Alcohol addiction</label>
+        </div>
+        <input type="text" name="alcohol_addiction_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="alcohol_addiction_bother_yes" name="alcohol_addiction_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="alcohol_addiction_bother_no" name="alcohol_addiction_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="gambling_addiction" name="gambling_addiction" value="yes">
+            <label>Gambling addiction</label>
+        </div>
+        <input type="text" name="gambling_addiction_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="gambling_addiction_bother_yes" name="gambling_addiction_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="gambling_addiction_bother_no" name="gambling_addiction_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="drug_addiction" name="drug_addiction" value="yes">
+            <label>Drug addiction</label>
+        </div>
+        <input type="text" name="drug_addiction_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="drug_addiction_bother_yes" name="drug_addiction_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="drug_addiction_bother_no" name="drug_addiction_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="computer_addiction" name="computer_addiction" value="yes">
+            <label>Computer addiction</label>
+        </div>
+        <input type="text" name="computer_addiction_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="computer_addiction_bother_yes" name="computer_addiction_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="computer_addiction_bother_no" name="computer_addiction_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="sexual_harassment" name="sexual_harassment" value="yes">
+            <label>Sexual harassment</label>
+        </div>
+        <input type="text" name="sexual_harassment_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="sexual_harassment_bother_yes" name="sexual_harassment_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="sexual_harassment_bother_no" name="sexual_harassment_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <p id="behavior-warning-12" class="text-red-600 text-center mt-4 hidden text-sm"></p>
+
+    <div class="flex justify-between mt-6">
+        <button type="button" onclick="goToSection(11)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+        <button type="button" onclick="validateBehaviorSection12()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">Next</button>
+    </div>
+</section>
+
+<section id="section13" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+    <h3 class="text-2xl font-semibold mt-2 mb-4">Behavior Information:</h3>
+    <div class="grid grid-cols-3 font-semibold text-center ">
+        <div class="p-2 border border-black">Check if you ever experience the following concerns:</div>
+        <div class="p-2 border border-black">When did it happen?</div>
+        <div class="p-2 border border-black">Does it still bothering you?</div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="sexual_abuse"  name="sexual_abuse" value="yes">
+            <label>Sexual abuse</label>
+        </div>
+        <input type="text" name="sexual_abuse_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="sexual_abuse_bother_yes" name="sexual_abuse_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="sexual_abuse_bother_no" name="sexual_abuse_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="physical_abuse" name="physical_abuse" value="yes">
+            <label>Physical abuse</label>
+        </div>
+        <input type="text" name="physical_abuse_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="physical_abuse_bother_yes" name="physical_abuse_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="physical_abuse_bother_no" name="physical_abuse_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="verbal_abuse" name="verbal_abuse" value="yes">
+            <label>Verbal abuse</label>
+        </div>
+        <input type="text" name="verbal_abuse_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="verbal_abuse_bother_yes" name="verbal_abuse_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="verbal_abuse_bother_no" name="verbal_abuse_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="pre_marital_sex" name="pre_marital_sex" value="yes">
+            <label>Pre-marital sex</label>
+        </div>
+        <input type="text" name="pre_marital_sex_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="pre_marital_sex_bother_yes" name="pre_marital_sex_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="pre_marital_sex_bother_no" name="pre_marital_sex_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="teenage_pregnancy" name="teenage_pregnancy" value="yes">
+            <label>Teenage pregnancy</label>
+        </div>
+        <input type="text" name="teenage_pregnancy_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="teenage_pregnancy_bother_yes" name="teenage_pregnancy_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="teenage_pregnancy_bother_no" name="teenage_pregnancy_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="abortion" name="abortion" value="yes">
+            <label>Abortion</label>
+        </div>
+        <input type="text" name="abortion_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="abortion_bother_yes" name="abortion_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="abortion_bother_no" name="abortion_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3">
+        <div class="p-2 text-[14px] border border-black font-semibold flex items-center gap-2">
+            <input type="checkbox" id="extra_marital_affairs" name="extra_marital_affairs" value="yes">
+            <label>Extra marital affairs</label>
+        </div>
+        <input type="text" name="extra_marital_affairs_when" class="p-2 border border-black">
+        <div class="text-center p-2 border border-black">
+            <input type="radio" id="extra_marital_affairs_bother_yes" name="extra_marital_affairs_bother" value="yes">
+            <label>YES</label>
+            <input type="radio" id="extra_marital_affairs_bother_no" name="extra_marital_affairs_bother" value="no" class="ml-4">
+            <label>NO</label>
+        </div>
+    </div>
+
+  <p id="behavior-warning-13" class="text-red-600 text-center mt-4 hidden text-sm"></p>
+
+  <div class="flex justify-between mt-6">
+    <button type="button" onclick="goToSection(12)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="button" onclick="validateBehaviorSection13()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">Next</button>
+  </div>
+</section>
+
+<section id="section14" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+  <h3 class="text-2xl font-semibold mt-2 mb-4">PREVIOUS PSYCHOLOGICAL CONSULTATIONS</h3>
+
+  <div class="grid grid-cols-2">
+    <label class="font-semibold mt-2">Have you consulted a PSYCHIATRIST before?</label>
+    <div>
+      <label><input type="radio" name="psychiatrist_before" value="yes" required> YES</label>
+      <label class="ml-4"><input type="radio" name="psychiatrist_before" value="no"> NO</label>
+    </div>
+  <p id="psychiatrist_error" class="text-red-600 text-sm hidden col-span-2"></p>
+  </div>
+
+  <div id="psychiatrist_extra" class="hidden mt-2">
+    <div class="grid grid-cols-2">
+      <label class="font-semibold text-center">If YES, for what reason?</label>
+      <input type="text" name="psychiatrist_reason" class="border-b border-black">
+    <p id="psychiatrist_reason_error" class="text-red-600 text-sm hidden col-span-2"></p>
+    </div>
+
+    <div class="grid grid-cols-2 mb-4">
+      <label class="font-semibold text-center">When?</label>
+      <input type="text" name="psychiatrist_when" class="border-b border-black">
+    <p id="psychiatrist_when_error" class="text-red-600 text-sm hidden col-span-2"></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 border-t border-black mt-4 pt-2">
+    <label class="font-semibold mt-2">Have you consulted a PSYCHOLOGIST before?</label>
+    <div>
+      <label><input type="radio" name="psychologist_before" value="yes" required> YES</label>
+      <label class="ml-4"><input type="radio" name="psychologist_before" value="no"> NO</label>
+    </div>
+  <p id="psychologist_error" class="text-red-600 text-sm hidden col-span-2"></p>
+  </div>
+
+  <div id="psychologist_extra" class="hidden mt-2">
+    <div class="grid grid-cols-2">
+      <label class="font-semibold text-center">If YES, for what reason?</label>
+      <input type="text" name="psychologist_reason" class="border-b border-black">
+    <p id="psychologist_reason_error" class="text-red-600 text-sm hidden col-span-2"></p>
+    </div>
+
+    <div class="grid grid-cols-2 mb-4">
+      <label class="font-semibold text-center">When?</label>
+      <input type="text" name="psychologist_when" class="border-b border-black">
+    <p id="psychologist_when_error" class="text-red-600 text-sm hidden col-span-2"></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 border-t border-black mt-4 pt-2">
+    <label class="font-semibold mt-2">Have you consulted a COUNSELOR before?</label>
+    <div>
+      <label><input type="radio" name="counselor_before" value="yes" required> YES</label>
+      <label class="ml-4"><input type="radio" name="counselor_before" value="no"> NO</label>
+    </div>
+  <p id="counselor_error" class="text-red-600 text-sm hidden col-span-2"></p>
+  </div>
+
+  <div id="counselor_extra" class="hidden mt-2">
+    <div class="grid grid-cols-2">
+      <label class="font-semibold text-center">If YES, for what reason?</label>
+      <input type="text" name="counselor_reason" class="border-b border-black">
+    <p id="counselor_reason_error" class="text-red-600 text-sm hidden col-span-2"></p>
+    </div>
+
+    <div class="grid grid-cols-2 mb-4">
+      <label class="font-semibold text-center">When?</label>
+      <input type="text" name="counselor_when" class="border-b border-black">
+    <p id="counselor_when_error" class="text-red-600 text-sm hidden col-span-2"></p>
+    </div>
+  </div>
+
+  <div class="flex justify-between mt-6">
+    <button type="button" onclick="goToSection(13)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="button" onclick="validateConsultations()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">
+     Next
+    </button>
+  </div>
+</section>
+
+<!-- SECTION 15 -->
+<section id="section15" class="section hidden w-[800px] p-10 bg-white shadow-xl rounded-lg">
+  <h3 class="text-2xl font-semibold mt-2 mb-4">PERSONAL DESCRIPTION</h3>
+
+  <div class="grid grid-cols-1">
+    <label class="block font-semibold mt-2">Tell something about yourself:</label>
+    <textarea name="personal_description" class="w-full border border-black rounded px-4 py-2" rows="4"></textarea>
+    <p id="personal_description_error" class="text-red-600 text-sm hidden mt-1"></p>
+  </div>
+
+  <div class="flex justify-between mt-6">
+    <button type="button" onclick="goToSection(14)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="button" onclick="validatePersonalDescription()" class="bg-[#166D3B] hover:bg-green-700 text-white px-6 py-2 rounded">
+      Next
+    </button>
+  </div>
+</section>
+
+<!-- SECTION 16 -->
+<section id="section16" class="section hidden w-[800px] p-5 bg-white shadow-xl rounded-lg">
+  <h3 class="text-xl font-semibold mb-4 text-center">DATA PRIVACY CONSENT</h3>
+    <p class="text-xs font-semibold mb-1">
+    By accepting this Data Privacy Statement, I (as “Data Subject”) 
+    grant my free, voluntary and unconditional consent to the collection 
+    and processing of all Personal Data to the information database system 
+    of the Central Philippine State University-San Carlos 
+    by whatever means in accordance with Republic Act (R.A.) 10173, 
+    otherwise known as the “Data Privacy Act of 2012” of the Republic of the Philippines, 
+    including its Implementing Rules and Regulations (IRR) as well as all other guidelines 
+    and issuances by the National Privacy Commission (NPC). I also consent to the following:
+    </p>
+    <p class="text-xs mb-1 ml-4">
+    1. The University may collect personal data during my application for admission purposes. <br>
+    2. My personal information can be accessed and used only by authorized personnel and officials <br>
+    connected to the University for legitimate purposes only. <br>
+    3. The University may share or disclose some of my personal information to others in its process <br>
+    to deliver necessary services for the stakeholders and the institution, including but not limited to: <br>
+    </p>
+    <p class="text-xs ml-8 mb-1">
+        a. web posting of the CPSU-College Admission Test (CPSU-CAT) results. <br>
+        b. web posting of Room Assignments for CPSU-CAT. <br>
+        c. web posting pertinent to admission and enrolment. <br>
+        d. sharing information for accreditation purposes (Accrediting Agency of Chartered Colleges <br>
+        and Universities in the Philippines (AACCUP). <br>
+        e. conducting research or surveys for purposes of institutional development. <br>
+        f. all guidance and counseling-related functions and services. <br>
+        g. other legitimate processes of the University.
+    </p>
+    <p class="text-xs font-semibold mb-2">
+        I hereby declare that all the information provided during my application are true 
+        and accurate to the best of my knowledge. I hereby attest to the completeness 
+        and accuracy of all the information that I have provided.
+    </p>
+    <p class="text-xs font-semibold">
+        I am fully aware that any false information provided may lead to my automatic dismissal 
+        and I will comply with all the terms and conditions set by your University.
+    </p>
+
+<div class="flex justify-between mt-6">
+    <button type="button" onclick="goToSection(15)" class="bg-gray-300 px-6 py-2 rounded">Previous</button>
+    <button type="submit" class="bg-[#166D3B] text-white px-6 py-2 rounded hover:bg-green-700">Submit</button>
+  </div>
+</section>
+
+</section>
+
+</form>
+</main>
+</div>
+
+<script>
+function goToSection(num) {
+  document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
+  document.querySelector('#section' + num).classList.remove('hidden');
+}
+
+function validateSection1() {
+  const requiredFields = document.querySelectorAll('#section1 [required]');
+  const errorMsg = document.getElementById('personal-info-error1');
+  let allFilled = true;
+
+  errorMsg.classList.add('hidden');
+  errorMsg.textContent = "";
+
+  for (const field of requiredFields) {
+    if (!field.value.trim()) {
+      allFilled = false;
+      field.classList.add("border-red-500");
+    } else {
+      field.classList.remove("border-red-500");
+    }
+  }
+
+  if (!allFilled) {
+    errorMsg.textContent = "Please complete all fields before proceeding.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  goToSection(2);
+}
+
+document.querySelectorAll('#section1 [required]').forEach(field => {
+  field.addEventListener('input', () => {
+    if (field.value.trim()) {
+      field.classList.remove('border-red-500');
+    }
+  });
+});
+
+function validateSection2() {
+  const requiredFields = document.querySelectorAll('#section2 [required]');
+  const errorMsg = document.getElementById('personal-info-error2');
+  let allFilled = true;
+
+  errorMsg.classList.add('hidden');
+  errorMsg.textContent = "";
+
+  for (const field of requiredFields) {
+    if (!field.value.trim()) {
+      allFilled = false;
+      field.classList.add("border-red-500");
+    } else {
+      field.classList.remove("border-red-500");
+    }
+  }
+
+  if (!allFilled) {
+    errorMsg.textContent = "Please complete all fields before proceeding.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  goToSection(3);
+}
+
+document.querySelectorAll('#section2 [required]').forEach(field => {
+  field.addEventListener('input', () => {
+    if (field.value.trim()) {
+      field.classList.remove('border-red-500');
+    }
+  });
+});
+
+function validateSection5() {
+  const requiredFields = document.querySelectorAll('#section5 [required]');
+  const errorMsg = document.getElementById('academic-info-error1');
+  let allFilled = true;
+
+  errorMsg.classList.add('hidden');
+  errorMsg.textContent = "";
+
+  for (const field of requiredFields) {
+    if (!field.value.trim()) {
+      allFilled = false;
+      field.classList.add("border-red-500");
+    } else {
+      field.classList.remove("border-red-500");
+    }
+  }
+
+  if (!allFilled) {
+    errorMsg.textContent = "Please complete all fields before proceeding.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  goToSection(6);
+}
+
+document.querySelectorAll('#section5 [required]').forEach(field => {
+  field.addEventListener('input', () => {
+    if (field.value.trim()) {
+      field.classList.remove('border-red-500');
+    }
+  });
+});
+
+function validateSection6() {
+  const requiredFields = document.querySelectorAll('#section6 [required]');
+  const errorMsg = document.getElementById('academic-info-error2');
+  const radioError = document.getElementById('error-course-choice');
+  const selected = document.querySelector('input[name="course_personal_choice"]:checked');
+  
+  let allFilled = true;
+  errorMsg.classList.add('hidden');
+  radioError.classList.add('hidden');
+  errorMsg.textContent = "";
+
+  requiredFields.forEach(field => {
+    if (!field.value.trim()) {
+      allFilled = false;
+      field.classList.add("border-red-500");
+    } else {
+      field.classList.remove("border-red-500");
+    }
+  });
+
+  if (!allFilled) {
+    errorMsg.textContent = "Please complete all fields before proceeding.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  if (!selected) {
+    radioError.classList.remove('hidden');
+    return;
+  }
+
+  if (selected.value === 'yes') {
+    document.querySelectorAll('#section7 input').forEach(input => {
+      input.removeAttribute('required');
+      input.classList.remove("border-red-500");
+    });
+    goToSection(8);
+  } else {
+    document.querySelectorAll('#section7 input').forEach(input => {
+      input.setAttribute('required', true);
+    });
+    goToSection(7);
+  }
+}
+
+function validateSection7() {
+  const requiredFields = document.querySelectorAll('#section7 [required]');
+  const errorMsg = document.getElementById('academic-info-error3');
+  let allFilled = true;
+
+  errorMsg.classList.add('hidden');
+  errorMsg.textContent = "";
+
+  for (const field of requiredFields) {
+    if (!field.value.trim()) {
+      allFilled = false;
+      field.classList.add("border-red-500");
+    } else {
+      field.classList.remove("border-red-500");
+    }
+  }
+
+  if (!allFilled) {
+    errorMsg.textContent = "Please complete all fields before proceeding.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  goToSection(8);
+}
+
+document.querySelectorAll('input[name="course_personal_choice"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    const section7 = document.getElementById('section7');
+    if (radio.value === 'yes' && radio.checked) {
+      section7.classList.add('hidden');
+    } else if (radio.value === 'no' && radio.checked) {
+      section7.classList.remove('hidden');
+    }
+  });
+});
+
+document.querySelectorAll('#section7 [required]').forEach(field => {
+  field.addEventListener('input', () => {
+    if (field.value.trim()) {
+      field.classList.remove('border-red-500');
+    }
+  });
+});
+
+function validateEnrollReasons() {
+    const checkboxes = document.querySelectorAll('input[name="enroll_reasons"]:checked');
+    const other = document.querySelector('input[name="other_reason"]').value.trim();
+    const error = document.getElementById('enrollCpsuError');
+
+    if (checkboxes.length === 0 && other === "") {
+        error.classList.remove('hidden');
+    } else {
+        error.classList.add('hidden');
+        goToSection(9); // proceed
+    }
+}
+
+function validateOtherSchool() {
+    const checkboxes = document.querySelectorAll('input[name="other_school"]:checked');
+    const otherInput = document.getElementById('otherSchoolInput').value.trim();
+    const error = document.getElementById('schoolConsiderError');
+
+    if (checkboxes.length === 0 && otherInput === "") {
+        error.classList.remove('hidden');
+    } else {
+        error.classList.add('hidden');
+        goToSection(10);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const behaviorGroups10 = [
+    { checkbox: "bullying", radios: ["bullying_bother_yes", "bullying_bother_no"], label: "Bullying" },
+    { checkbox: "suicidal_thoughts", radios: ["suicidal_thoughts_bother_yes", "suicidal_thoughts_bother_no"], label: "Suicidal thoughts" },
+    { checkbox: "suicidal_attempts", radios: ["suicidal_attempts_bother_yes", "suicidal_attempts_bother_no"], label: "Suicidal attempts" },
+    { checkbox: "panic_attacks", radios: ["panic_attacks_bother_yes", "panic_attacks_bother_no"], label: "Panic attacks" },
+    { checkbox: "anxiety", radios: ["anxiety_bother_yes", "anxiety_bother_no"], label: "Anxiety" },
+    { checkbox: "depression", radios: ["depression_bother_yes", "depression_bother_no"], label: "Depression" },
+    { checkbox: "self_anger_issues", radios: ["self_anger_issues_bother_yes", "self_anger_issues_bother_no"], label: "Self / Anger Management Issues" },
+    { checkbox: "recurring_negative_thoughts", radios: ["recurring_negative_thoughts_bother_yes", "recurring_negative_thoughts_bother_no"], label: "Recurring negative thoughts" },
+  ];
+  const warning10 = document.getElementById("behavior-warning-10");
+
+  window.validateBehaviorSection10 = function () {
+    warning10.classList.add("hidden");
+    warning10.textContent = "";
+
+    for (const group of behaviorGroups10) {
+      const checkbox = document.getElementById(group.checkbox);
+      const yes = document.getElementById(group.radios[0]);
+      const no = document.getElementById(group.radios[1]);
+
+      if (checkbox.checked && !yes.checked && !no.checked) {
+        warning10.textContent = `Please select YES or NO for "${group.label}".`;
+        warning10.classList.remove("hidden");
+        return;
+      }
+    }
+    goToSection(11);
+  };
+
+  behaviorGroups10.forEach(group => {
+    group.radios.forEach(id => {
+      const radio = document.getElementById(id);
+      if (radio) {
+        radio.addEventListener("change", () => {
+          if (!warning10.classList.contains("hidden")) {
+            warning10.classList.add("hidden");
+            warning10.textContent = "";
+          }
+        });
+      }
+    });
+  });
+
+
+  const behaviorGroups11 = [
+    { checkbox: "low_self_esteem", radios: ["low_self_esteem_bother_yes", "low_self_esteem_bother_no"], label: "Low self-esteem" },
+    { checkbox: "poor_study_habits", radios: ["poor_study_habits_bother_yes", "poor_study_habits_bother_no"], label: "Poor study habits" },
+    { checkbox: "poor_in_decision_making", radios: ["poor_in_decision_making_bother_yes", "poor_in_decision_making_bother_no"], label: "Poor in decision making" },
+    { checkbox: "impulsivity", radios: ["impulsivity_bother_yes", "impulsivity_bother_no"], label: "Impulsivity" },
+    { checkbox: "poor_sleeping_habits", radios: ["poor_sleeping_habits_bother_yes", "poor_sleeping_habits_bother_no"], label: "Poor sleeping habits" },
+    { checkbox: "loos_of_appetite", radios: ["loos_of_appetite_bother_yes", "loos_of_appetite_bother_no"], label: "Loss of appetite" },
+    { checkbox: "over_eating", radios: ["over_eating_bother_yes", "over_eating_bother_no"], label: "Over-eating" },
+    { checkbox: "poor_hygiene", radios: ["poor_hygiene_bother_yes", "poor_hygiene_bother_no"], label: "Poor hygiene" },
+  ];
+  const warning11 = document.getElementById("behavior-warning-11");
+
+  window.validateBehaviorSection11 = function () {
+    warning11.classList.add("hidden");
+    warning11.textContent = "";
+
+    for (const group of behaviorGroups11) {
+      const checkbox = document.getElementById(group.checkbox);
+      const yes = document.getElementById(group.radios[0]);
+      const no = document.getElementById(group.radios[1]);
+
+      if (checkbox.checked && !yes.checked && !no.checked) {
+        warning11.textContent = `Please select YES or NO for "${group.label}".`;
+        warning11.classList.remove("hidden");
+        return;
+      }
+    }
+    goToSection(12);
+  };
+
+  behaviorGroups11.forEach(group => {
+    group.radios.forEach(id => {
+      const radio = document.getElementById(id);
+      if (radio) {
+        radio.addEventListener("change", () => {
+          if (!warning11.classList.contains("hidden")) {
+            warning11.classList.add("hidden");
+            warning11.textContent = "";
+          }
+        });
+      }
+    });
+  });
+
+  const behaviorGroups12 = [
+    { checkbox: "withdrawal_isolation", radios: ["withdrawal_isolation_bother_yes", "withdrawal_isolation_bother_no"], label: "Withdrawal / Isolation" },
+    { checkbox: "family_problem", radios: ["family_problem_bother_yes", "family_problem_bother_no"], label: "Family problem" },
+    { checkbox: "other_relationship_problem", radios: ["other_relationship_problem_bother_yes", "other_relationship_problem_bother_no"], label: "Other relationship problems" },
+    { checkbox: "alcohol_addiction", radios: ["alcohol_addiction_bother_yes", "alcohol_addiction_bother_no"], label: "Alcohol addiction" },
+    { checkbox: "gambling_addiction", radios: ["gambling_addiction_bother_yes", "gambling_addiction_bother_no"], label: "Gambling addiction" },
+    { checkbox: "drug_addiction", radios: ["drug_addiction_bother_yes", "drug_addiction_bother_no"], label: "Drug addiction" },
+    { checkbox: "computer_addiction", radios: ["computer_addiction_bother_yes", "computer_addiction_bother_no"], label: "Computer addiction" },
+    { checkbox: "sexual_harassment", radios: ["sexual_harassment_bother_yes", "sexual_harassment_bother_no"], label: "Sexual harassment" },
+  ];
+  const warning12 = document.getElementById("behavior-warning-12");
+
+  window.validateBehaviorSection12 = function () {
+    warning12.classList.add("hidden");
+    warning12.textContent = "";
+
+    for (const group of behaviorGroups12) {
+      const checkbox = document.getElementById(group.checkbox);
+      const yes = document.getElementById(group.radios[0]);
+      const no = document.getElementById(group.radios[1]);
+
+      if (checkbox.checked && !yes.checked && !no.checked) {
+        warning12.textContent = `Please select YES or NO for "${group.label}".`;
+        warning12.classList.remove("hidden");
+        return;
+      }
+    }
+    goToSection(13);
+  };
+
+  behaviorGroups12.forEach(group => {
+    group.radios.forEach(id => {
+      const radio = document.getElementById(id);
+      if (radio) {
+        radio.addEventListener("change", () => {
+          if (!warning12.classList.contains("hidden")) {
+            warning12.classList.add("hidden");
+            warning12.textContent = "";
+          }
+        });
+      }
+    });
+  });
+
+  const behaviorGroups13 = [
+    { checkbox: "sexual_abuse", radios: ["sexual_abuse_bother_yes", "sexual_abuse_bother_no"], label: "Sexual abuse" },
+    { checkbox: "physical_abuse", radios: ["physical_abuse_bother_yes", "physical_abuse_bother_no"], label: "Physical abuse" },
+    { checkbox: "verbal_abuse", radios: ["verbal_abuse_bother_yes", "verbal_abuse_bother_no"], label: "Verbal abuse" },
+    { checkbox: "pre_marital_sex", radios: ["pre_marital_sex_bother_yes", "pre_marital_sex_bother_no"], label: "Pre-marital sex" },
+    { checkbox: "teenage_pregnancy", radios: ["teenage_pregnancy_bother_yes", "teenage_pregnancy_bother_no"], label: "Teenage pregnancy" },
+    { checkbox: "abortion", radios: ["abortion_bother_yes", "abortion_bother_no"], label: "Abortion" },
+    { checkbox: "extra_marital_affairs", radios: ["extra_marital_affairs_bother_yes", "extra_marital_affairs_bother_no"], label: "Extra marital affairs" },
+  ];
+  const warning13 = document.getElementById("behavior-warning-13");
+
+  window.validateBehaviorSection13 = function () {
+    warning13.classList.add("hidden");
+    warning13.textContent = "";
+
+    for (const group of behaviorGroups13) {
+      const checkbox = document.getElementById(group.checkbox);
+      const yes = document.getElementById(group.radios[0]);
+      const no = document.getElementById(group.radios[1]);
+
+      if (checkbox.checked && !yes.checked && !no.checked) {
+        warning13.textContent = `Please select YES or NO for "${group.label}".`;
+        warning13.classList.remove("hidden");
+        return;
+      }
+    }
+    goToSection(14);
+  };
+
+  behaviorGroups13.forEach(group => {
+    group.radios.forEach(id => {
+      const radio = document.getElementById(id);
+      if (radio) {
+        radio.addEventListener("change", () => {
+          if (!warning13.classList.contains("hidden")) {
+            warning13.classList.add("hidden");
+            warning13.textContent = "";
+          }
+        });
+      }
+    });
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const consultations = [
+    { prefix: "psychiatrist" },
+    { prefix: "psychologist" },
+    { prefix: "counselor" },
+  ];
+
+  consultations.forEach(({ prefix }) => {
+    const radios = document.getElementsByName(`${prefix}_before`);
+    const extra = document.getElementById(`${prefix}_extra`);
+    const reason = document.querySelector(`[name="${prefix}_reason"]`);
+    const when = document.querySelector(`[name="${prefix}_when"]`);
+
+    radios.forEach(radio => {
+      radio.addEventListener("change", () => {
+        // Hide previous errors
+        document.getElementById(`${prefix}_error`).classList.add("hidden");
+        document.getElementById(`${prefix}_reason_error`).classList.add("hidden");
+        document.getElementById(`${prefix}_when_error`).classList.add("hidden");
+
+        if (radio.value === "yes") {
+          extra.classList.remove("hidden");
+          reason.required = true;
+          when.required = true;
+        } else {
+          extra.classList.add("hidden");
+          reason.required = false;
+          when.required = false;
+          reason.value = "";
+          when.value = "";
+        }
+      });
+    });
+  });
+});
+
+function validateConsultations() {
+  let hasError = false;
+  const consultations = [
+    { label: "PSYCHIATRIST", prefix: "psychiatrist" },
+    { label: "PSYCHOLOGIST", prefix: "psychologist" },
+    { label: "COUNSELOR", prefix: "counselor" },
+  ];
+
+  consultations.forEach(({ label, prefix }) => {
+    const radios = document.getElementsByName(`${prefix}_before`);
+    const errorEl = document.getElementById(`${prefix}_error`);
+    const reason = document.querySelector(`[name="${prefix}_reason"]`);
+    const when = document.querySelector(`[name="${prefix}_when"]`);
+    const reasonError = document.getElementById(`${prefix}_reason_error`);
+    const whenError = document.getElementById(`${prefix}_when_error`);
+
+    errorEl.classList.add("hidden");
+    reasonError.classList.add("hidden");
+    whenError.classList.add("hidden");
+
+    const selected = [...radios].find(r => r.checked);
+    if (!selected) {
+      errorEl.textContent = `Please answer YES or NO for "${label}".`;
+      errorEl.classList.remove("hidden");
+      hasError = true;
+    } else if (selected.value === "yes") {
+      if (!reason.value.trim()) {
+        reasonError.textContent = `Please provide a reason for "${label}".`;
+        reasonError.classList.remove("hidden");
+        hasError = true;
+      }
+      if (!when.value.trim()) {
+        whenError.textContent = `Please specify when you consulted a "${label}".`;
+        whenError.classList.remove("hidden");
+        hasError = true;
+      }
+    }
+  });
+
+  if (!hasError) goToSection(15);
+}
+
+function validatePersonalDescription() {
+  const textarea = document.querySelector('[name="personal_description"]');
+  const errorMsg = document.getElementById("personal_description_error");
+
+  errorMsg.classList.add("hidden");
+  errorMsg.textContent = "";
+
+  if (!textarea.value.trim()) {
+    errorMsg.textContent = "This field is required. Please tell something about yourself.";
+    errorMsg.classList.remove("hidden");
+    return;
+  }
+
+  goToSection(16);
+}
+
+</script>
+
+     {% include 'components/footer.html' %}
+     
+</body>
+</html>

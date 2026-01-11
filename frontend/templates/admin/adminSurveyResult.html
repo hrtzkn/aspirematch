@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESPONDENTS RESULT</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminHeader.html' %}
+
+ {% include 'components/adminSidebar.html' %}
+
+    <!-- MAIN CONTENT -->
+    <div class="flex flex-1">
+        <main class="ml-72 flex-1 p-8 bg-[#f6ebcd] min-h-screen pt-[110px] mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="window.history.back();" 
+                        class="mb-4 px-4 py-2 bg-[#EEEDED] text-black rounded hover:bg-gray-700 hover:text-white border border-[#166D3B]">
+                    ← Back
+                </button>
+                <button 
+                    onclick="generateAIExplanation('{{ student_results.exam_id }}')" 
+                    class="bg-[#166D3B] text-white px-4 py-2 rounded hover:bg-green-700 shadow">
+                    Generate AI Explanation
+                </button>
+                <a href="{{ url_for('admin.download_result', exam_id=student_results.exam_id) }}"
+                   class="mt-4 px-6 py-2 bg-[#166D3B] text-white rounded hover:bg-green-700">
+                    Download (.pdf)
+                </a>
+            </div>
+            <div
+                class="print-container shadow-lg bg-white p-4 lg:p-6
+                        rounded-2xl border border-[#166D3B]
+                        w-full lg:w-[816px]
+                        h-[550px] lg:min-h-[1056px]
+                        mx-auto overflow-x-auto">
+                <table style="width: 100%;" class="mt-4">
+                    <tr>
+                        <td style="width: 36%;" >
+                            <div class="flex flex-wrap items-center gap-2 pl-16 ">
+                                <img src="{{ url_for('static', filename='images/cpsulogo.png') }}" class="h-4 lg:h-14">
+                                <img src="{{ url_for('static', filename='images/bagong-pilipinas-logo.png') }}" class="h-6 lg:h-16">
+                                <img src="{{ url_for('static', filename='images/logo.png') }}" class="h-4 lg:h-14">
+                            </div>
+                        </td>
+                    
+                        <td class="text-left px-4 lg:px-6 border-l-2 border-black leading-snug">
+                            <div class="text-black text-[8px] lg:text-sm">
+                                Republic of the Philippines
+                            </div>
+
+                            <div class="text-green-600 font-bold uppercase
+                                        text-[9px] lg:text-base">
+                                Central Philippines State University
+                            </div>
+
+                            <div class="text-green-600 font-bold uppercase
+                                        text-[9px] lg:text-base">
+                                San Carlos Campus
+                            </div>
+
+                            <div class="text-black text-[7px] lg:text-xs">
+                                San Carlos City, Negros Occidental 6127
+                            </div>
+                        </td>
+                    </tr>
+                  </table>
+                  
+                <div class="text-center mb-1 lg:mb-4 font-bold uppercase
+                            text-[7px] lg:text-base text-black">
+                    Students’ Admission and Facilitative Enhancement (S.A.F.E.) Center
+                </div>
+
+                <hr class="border border-black w-[700px] ml-4 lg:ml-8 mb-1 lg:mb-4">
+
+                <h1 class="text-[10px] lg:text-2xl font-bold text-center">Career Interest Survey Result</h1>
+
+                <div class="flex justify-between lg:flex-row lg:justify-between gap-2 ml-8 mr-8">
+                    <h2 class="text-[10px] lg:text-lg font-medium">
+                        {{ student_results.exam_id }} | {{ student_results.fullname }}
+                    </h2>
+                    <p class="font-bold text-[10px] lg:text-lg">{{ year }}</p>
+                </div>
+
+                <div class="section ml-8 mr-8">
+                    <p class="mb-2 text-[10px] lg:text-lg"><strong>Preferred Program:</strong> {{ student_results.preferred_program }}</p>
+                </div>
+
+                <div class="section mb-2 ml-8 mr-8 text-justify">
+                    <h2 class=" font-bold text-[10px] lg:text-lg">Most Chosen Letters</h2>
+                    <ul class="list-disc list-inside text-[10px] lg:text-lg">
+                        {% for letter in top_letters %}
+                            <li><strong>{{ letter }}:</strong> {{ letter_descriptions.get(letter, "No description available") }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="section ml-8 mr-8">
+                    {% if match_status == "Match" %}
+                        <p class="text-green-700 font-semibold text-[10px] lg:text-lg">✔ The preferred program and most chosen letter is MATCH</p>
+                    {% elif match_status == "Not Match" %}
+                        <p class="text-red-700 font-semibold text-[10px] lg:text-lg">✘ The preferred program and most chosen letter is NOT MATCH</p>
+                    {% elif match_status == "Not Yet Answer" %}
+                        <p class="text-gray-600 font-semibold text-[10px] lg:text-lg">⚠ The student has not yet answered the survey</p>
+                    {% endif %}
+                </div>
+
+                <div class="section border border-gray-400 p-4 lg:p-6 mt-7 lg:mt-10 rounded
+                            h-[150px] lg:h-[320px] overflow-auto ml-8 mr-8">
+                </div>
+
+                <div class="mt-4 lg:mt-20 text-left ml-8 mb-8">
+                    <h2 class="text-[6px] lg:text-sm font-bold text-left mb-1"><span class="border-b border-black pb-1 inline-block">DANILO A. ROBLICO JR. MAED-GC, RGC, LPT</span></h2>
+                    <h3 class="text-[8px] lg:text-sm text-left ml-6 lg:ml-20">Guidance Counselor</h3>
+                </div>
+            </div>
+
+            <div
+                class="print-container shadow-lg bg-white p-4 lg:p-6 mt-2 lg:mt-4 mb-14 lg:mb-4
+                        rounded-2xl border border-[#166D3B]
+                        w-full lg:w-[816px]
+                        h-[650px] lg:h-[1056px]
+                        mx-auto overflow-x-auto">
+        
+                    <div id="aiExplanationBox"
+                        class="p-2 rounded whitespace-pre-wrap text-[7px] lg:text-[12px]
+                                h-fit lg:h-fit
+                                ml-8 mr-8 text-justify">
+                        Click "Generate AI Explanation" to view your AI career guidance.
+                    </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+function generateAIExplanation(examID) {
+    const box = document.getElementById("aiExplanationBox");
+    box.innerHTML = "<p class='text-gray-500'>AI is generating... please wait.</p>";
+
+    fetch(`/admin/generateMatchExplanation/${examID}`)
+        .then(response => response.json())
+        .then(data => {
+            box.innerHTML = data.explanation.replace(/\n/g, "<br>");
+        })
+        .catch(err => {
+            box.innerHTML = "<p class='text-red-500'>Error generating explanation.</p>";
+        });
+}
+</script>
+
+    {% include 'components/footer.html' %}
+
+</body>
+</html>

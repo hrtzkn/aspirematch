@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        #typingIndicator {
+            animation: blink 1.2s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+<!-- HEADER -->
+<header
+    class="fixed top-0 left-0 right-0 z-50
+           bg-[#166D3B] text-[#f6ebcd]
+           flex justify-between items-center
+           px-4 sm:px-6 lg:px-8
+           h-16 sm:h-20">
+
+    <!-- LOGO + TITLE -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+        <img src="/static/images/aspire.png"
+             alt="AspireMatch Logo"
+             class="h-10 sm:h-12 lg:h-14 w-auto">
+
+        <h1 class="text-lg sm:text-2xl lg:text-3xl font-semibold">
+            AspireMatch
+        </h1>
+    </div>
+
+    <!-- RIGHT ACTIONS -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+
+        <!-- CHAT -->
+        <div class="relative">
+            <div id="chat-button"
+                class="bg-[#f6ebcd] text-[#166D3B]
+                       p-2 sm:p-3
+                       rounded-full shadow-lg cursor-pointer">
+                💬
+            </div>
+
+            <!-- CHAT PANEL -->
+            <div id="chat-panel"
+                class="hidden fixed
+                    text-start
+                    bottom-4 right-2
+                    top-48 md:top-24 md:right-6
+                    w-80 md:w-96
+                    h-[60vh] md:h-[80vh]
+                    bg-white rounded-t-xl md:rounded-xl
+                    shadow-xl p-3 md:p-4
+                    flex flex-col z-50">
+
+                <div class="text-black mb-2">
+                    <span class="font-semibold text-sm">Chat with Dan</span>
+                </div>
+
+                <!-- MESSAGES -->
+                <div id="chat-messages"
+                     class="flex-1 overflow-y-auto pb-2"></div>
+
+                <!-- TYPING -->
+                <div id="typingIndicator"
+                     class="hidden p-1 text-xs text-gray-600 italic">
+                    Dan is typing...
+                </div>
+
+                <!-- INPUT -->
+                <div class="mt-2 flex">
+                    <input id="chat-input"
+                        class="flex-grow text-[#166D3B]
+                               p-2 border border-black rounded-l text-sm"
+                        placeholder="Ask Dan...">
+
+                    <button id="chat-send"
+                        class="bg-[#166D3B] text-white px-4 rounded-r text-sm">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="relative group">
+            <div
+                class="bg-[#f6ebcd] text-[#166D3B]
+                       p-2 sm:p-3
+                       rounded-full cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5 sm:h-6 sm:w-6"
+                     fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4
+                             7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6
+                             4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                </svg>
+            </div>
+
+            <a href="{{ url_for('student.login_page') }}"
+               class="absolute left-1/2 -translate-x-1/2 mt-1
+                      px-2 py-1 text-sm
+                      bg-red-600 text-white rounded-md
+                      opacity-0 group-hover:opacity-100 transition">
+                Logout
+            </a>
+        </div>
+
+    </div>
+</header>
+
+<script>
+const chatButton = document.getElementById("chat-button");
+const chatPanel = document.getElementById("chat-panel");
+const chatSend = document.getElementById("chat-send");
+const chatInput = document.getElementById("chat-input");
+const messagesDiv = document.getElementById("chat-messages");
+const typingIndicator = document.getElementById("typingIndicator");
+
+chatButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    chatPanel.classList.toggle("hidden");
+});
+
+document.addEventListener("click", (e) => {
+    if (!chatPanel.contains(e.target) && !chatButton.contains(e.target)) {
+        chatPanel.classList.add("hidden");
+    }
+});
+
+chatPanel.addEventListener("click", (e) => {
+    e.stopPropagation();
+});
+
+async function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+
+    messagesDiv.innerHTML += `
+        <div class="p-2 bg-gray-200 rounded text-[#166D3B] mb-2">
+            You: ${msg}
+        </div>
+    `;
+
+    chatInput.value = "";
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    showTyping();
+
+    const res = await fetch("/student/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg })
+    });
+
+    const data = await res.json();
+
+    hideTyping();
+    messagesDiv.innerHTML += `
+        <div class="p-2 bg-[#166D3B] text-white rounded mb-2">
+            Dan: ${data.reply}
+        </div>
+    `;
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+chatSend.addEventListener("click", sendMessage);
+
+chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+function showTyping() {
+    typingIndicator.classList.remove("hidden");
+}
+
+function hideTyping() {
+    typingIndicator.classList.add("hidden");
+}
+</script>
+
+<!--
+//function saveChatHistory() {
+ //   const chatMessages = document.getElementById("chat-messages").innerHTML;
+ //   localStorage.setItem("danChatHistory", chatMessages);
+//}
+
+//window.addEventListener("load", () => {
+//    const saved = localStorage.getItem("danChatHistory");
+//    if (saved) {
+//        document.getElementById("chat-messages").innerHTML = saved;
+//    }
+//});
+-->
+
+</body>
+</html>

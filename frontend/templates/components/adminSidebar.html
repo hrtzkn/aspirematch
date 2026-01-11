@@ -1,0 +1,40 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN DASHBOARD</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white text-black fixed top-[110px] left-8 h-[calc(80vh-70px)] shadow-md rounded-2xl border border-[#166D3B]">
+        
+        <nav class="mt-8">
+            <ul class="space-y-5">
+                <li class="m-4 rounded-xl hover:bg-[#f6ebcd] {{ 'bg-[#f6ebcd]' if request.path == url_for('admin.dashboard') else '' }}">
+                    <a href="{{ url_for('admin.dashboard') }}" class="block text-xl w-full p-2">🏠 DASHBOARD</a>
+                </li>
+                <li class="m-4 rounded-xl hover:bg-[#f6ebcd] {{ 'bg-[#f6ebcd]' if request.path in [ url_for('admin.respondents'), url_for('admin.adminSurveyResult') ]  else '' }}">
+                    <a href="{{ url_for('admin.respondents') }}" class="block text-xl w-full p-2">👥 RESPONDENTS</a>
+                </li>
+                <li class="m-4 rounded-xl hover:bg-[#f6ebcd] {{ 'bg-[#f6ebcd]' if request.path in [ url_for('admin.adminInventory'), url_for('admin.adminInventoryResult')]  else '' }}">
+                    <a href="{{ url_for('admin.adminInventory') }}" class="block text-xl w-full p-2">📦 INVENTORY</a>
+                </li>
+                <li class="m-4 rounded-xl hover:bg-[#f6ebcd] {{ 'bg-[#f6ebcd]' if request.path == url_for('admin.interviewList') else '' }}">
+                    <a href="{{ url_for('admin.interviewList') }}" class="block text-xl w-full p-2" >🗓️ INTERVIEW</a>
+                </li>
+                <li class="m-4 rounded-xl hover:bg-[#f6ebcd] {{ 'bg-[#f6ebcd]' if request.path == url_for('admin.visualization') else '' }}">
+                    <a href="{{ url_for('admin.visualization') }}" class="block text-xl w-full p-2">📊 VISUALIZATIONS</a>
+                </li>
+                <li class="m-4 rounded-xl hover:bg-[#f6ebcd] {{ 'bg-[#f6ebcd]' if request.path == url_for('admin.addAdmin') else '' }}">
+                    <a href="{{ url_for('admin.addAdmin') }}" class="block text-xl w-full p-2">👨‍💼 ADMINISTRATOR</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+</body>
+</html>

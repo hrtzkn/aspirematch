@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminHeader.html' %}
+
+ {% include 'components/adminSidebar.html' %}
+
+    <!-- MAIN CONTENT -->
+    <div class="flex flex-1">
+        <main class="ml-72 flex-1 p-8 bg-[#f6ebcd] min-h-screen pt-[110px]">
+            <div class="bg-white p-8 rounded-2xl border border-[#166D3B]">
+                <h2 class="text-2xl font-bold mb-6">Add Administrator</h2>
+
+                <form action="/admin/addAdmin" method="POST" class="flex flex-col">
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-black">First Name</label>
+                            <input type="text" name="first_name" required class="w-full p-2 border border-gray-300 bg-gray-100 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-black">Middle Name</label>
+                            <input type="text" name="middle_name" required class="w-full p-2 border border-gray-300 bg-gray-100 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-black">Last Name</label>
+                            <input type="text" name="last_name" required class="w-full p-2 border border-gray-300 bg-gray-100 rounded-lg">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-black">Username</label>
+                            <input type="text" name="user_name" required class="w-full p-2 border border-gray-300 bg-gray-100 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-black">Email Address</label>
+                            <input type="email" name="email" required class="w-full p-2 border border-gray-300 bg-gray-100 rounded-lg">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-black">Password</label>
+
+                        <div class="flex gap-3 items-center">
+                            <input id="adminPassword" 
+                                type="password" 
+                                name="password" 
+                                required 
+                                class="w-full p-2 border border-gray-300 bg-gray-100 rounded-lg"
+                                onkeyup="checkPasswordStrength()">
+
+                            <button type="button"
+                                    onclick="togglePassword()"
+                                    class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 text-sm">
+                                Show
+                            </button>
+
+                            <button type="button"
+                                    onclick="copyPassword()"
+                                    class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">
+                                Copy
+                            </button>
+
+                            <button type="button"
+                                    onclick="generateStrongPassword()"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                Suggest AI Password
+                            </button>
+                        </div>
+
+                        <div class="w-full h-2 bg-gray-300 rounded mt-2">
+                            <div id="strengthBar" class="h-full w-0 rounded transition-all"></div>
+                        </div>
+
+                        <p id="passwordStrengthMsg" class="text-xs text-gray-600 mt-1"></p>
+
+                        <div id="passwordRequirements" class="mt-2 text-sm">
+                            <p id="passwordRequirements" class="text-xs mt-1 text-gray-700">
+                                Password must include:
+                                <span id="reqUpper" class="text-red-600">❌ A-Z</span>,
+                                <span id="reqLower" class="text-red-600">❌ a-z</span>,
+                                <span id="reqNumber" class="text-red-600">❌ 0-9</span>,
+                                <span id="reqSymbol" class="text-red-600">❌ symbol</span>,
+                                <span id="reqLength" class="text-red-600">❌ 8 characters</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <button type="submit" 
+                                class="bg-[#166D3B] text-white py-2 px-6 rounded-lg hover:bg-green-700 text-md font-semibold">
+                            Add Administrator
+                        </button>
+
+                        {% if message %}
+                        <span class="text-sm font-medium
+                                    {% if category == 'success' %} text-green-600 
+                                    {% elif category == 'danger' %} text-red-600 
+                                    {% else %} text-gray-600 {% endif %}">
+                            {{ message }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+
+             {% if admin_username == 'hk' %}
+            <h2 class="text-2xl font-bold mt-10 mb-4">Administrator List</h2>
+
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden text-sm mb-4">
+                <thead class="bg-[#166D3B] text-white">
+                    <tr>
+                        <th class="px-4 py-2">ID</th>
+                        <th class="px-4 py-2">Full Name</th>
+                        <th class="px-4 py-2">Username</th>
+                        <th class="px-4 py-2">Email</th>
+                        <th class="px-4 py-2">Created At</th>
+                        <th class="px-4 py-2 text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for admin in admins %}
+                    <tr class="border-b hover:bg-gray-100">
+                        <td class="px-4 py-2">{{ admin[0] }}</td>
+                        <td class="px-4 py-2">{{ admin[1] }} {{ admin[2] }} {{ admin[3] }}</td>
+                        <td class="px-4 py-2">{{ admin[4] }}</td>
+                        <td class="px-4 py-2">{{ admin[5] }}</td>
+                        <td class="px-4 py-2">{{ admin[6] }}</td>
+
+                        <td class="px-4 py-2 flex gap-2 justify-center">
+                            <a href="" 
+                               class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
+                                Edit
+                            </a>
+
+                            <a href="" 
+                               class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                               onclick="return confirm('Delete this admin?');">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </main>
+    </div>
+
+<script>
+function generateStrongPassword() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+=<>?";
+    let password = "";
+
+    for (let i = 0; i < 16; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    const pwField = document.getElementById("adminPassword");
+    pwField.value = password;
+
+    checkPasswordStrength();
+}
+
+function togglePassword() {
+    const pw = document.getElementById("adminPassword");
+    const btn = event.target;
+
+    if (pw.type === "password") {
+        pw.type = "text";
+        btn.innerText = "Hide";
+    } else {
+        pw.type = "password";
+        btn.innerText = "Show";
+    }
+}
+
+function copyPassword() {
+    const pw = document.getElementById("adminPassword");
+    const btn = event.target;
+
+    pw.select();
+    pw.setSelectionRange(0, 99999);
+
+    navigator.clipboard.writeText(pw.value);
+
+    btn.innerText = "☑️";
+    btn.classList.add("bg-green-600");
+
+    setTimeout(() => {
+        btn.innerText = "Copy";
+        btn.classList.remove("bg-green-600");
+    }, 3000);
+}
+
+function checkPasswordStrength() {
+    const pw = document.getElementById("adminPassword").value;
+    const bar = document.getElementById("strengthBar");
+    const msg = document.getElementById("passwordStrengthMsg");
+
+    let strength = 0;
+
+    const hasUpper = /[A-Z]/.test(pw);
+    const hasLower = /[a-z]/.test(pw);
+    const hasNumber = /[0-9]/.test(pw);
+    const hasSymbol = /[^A-Za-z0-9]/.test(pw);
+    const hasLength = pw.length >= 8;
+
+    updateReq("reqUpper", hasUpper, "A-Z");
+    updateReq("reqLower", hasLower, "a-z");
+    updateReq("reqNumber", hasNumber, "0-9");
+    updateReq("reqSymbol", hasSymbol, "symbol");
+    updateReq("reqLength", hasLength, "8 chars");
+
+    function updateReq(id, valid, label) {
+        document.getElementById(id).className = valid ? "text-green-600" : "text-red-600";
+        document.getElementById(id).innerHTML = (valid ? "✔ " : "❌ ") + label;
+    }
+
+    if (hasUpper) strength++;
+    if (hasLower) strength++;
+    if (hasNumber) strength++;
+    if (hasSymbol) strength++;
+    if (hasLength) strength++;
+
+    switch (strength) {
+        case 0:
+        case 1:
+            bar.style.width = "20%";
+            bar.style.background = "red";
+            msg.innerText = "Weak password";
+            break;
+        case 2:
+        case 3:
+            bar.style.width = "60%";
+            bar.style.background = "orange";
+            msg.innerText = "Medium strength";
+            break;
+        case 4:
+        case 5:
+            bar.style.width = "100%";
+            bar.style.background = "green";
+            msg.innerText = "Strong password";
+            break;
+    }
+}
+</script>
+
+
+
+    {% include 'components/footer.html' %}
+
+</body>
+</html>

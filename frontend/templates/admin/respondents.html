@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESPONDENTS</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminHeader.html' %}
+
+ {% include 'components/adminSidebar.html' %}
+
+    <!-- MAIN CONTENT -->
+    <div class="flex flex-1">
+        <main class="ml-72 flex-1 p-8 bg-[#f6ebcd] min-h-screen pt-[110px]">
+            <div class="bg-white p-3 shadow-md rounded-2xl mb-2 left-80 right-8 border border-[#166D3B]">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold">RESPONDENTS</h1>
+
+                    <form method="GET" action="{{ url_for('admin.respondents') }}" class="flex items-center">
+                        <label class="text-black ml-2 mr-1">Year:</label>
+                        <select name="year" class="border border-[#166D3B] rounded-lg p-2"
+                                onchange="this.form.submit()">
+                            {% for y in available_years %}
+                                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+
+                    <form method="GET" action="{{ url_for('admin.respondents') }}" class="flex items-center ml-4">
+                        <input type="hidden" name="year" value="{{ year }}">
+                        <label class="text-black mr-1">Match Status:</label>
+                        <select name="status" class="border border-[#166D3B] rounded-lg p-2"
+                                onchange="this.form.submit()">
+                            <option value="" {% if status_filter == '' %}selected{% endif %}>All</option>
+                            <option value="match" {% if status_filter == 'match' %}selected{% endif %}>Match</option>
+                            <option value="not_match" {% if status_filter == 'not_match' %}selected{% endif %}>Not Match</option>
+                        </select>
+                    </form>
+
+                    <form method="GET" action="{{ url_for('admin.respondents') }}" class="flex items-center ml-4">
+                        <input type="hidden" name="year" value="{{ year }}">
+                        <input type="hidden" name="status" value="{{ status_filter }}">
+                        <input type="text" name="q" value="{{ search_query }}"
+                            class="p-2 border border-[#166D3B] rounded-lg text-gray-700 w-52"
+                            placeholder="🔎 Search student...">
+                        <button type="submit" class="ml-2 bg-[#E0A200] text-white px-4 py-2 rounded-lg">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white p-3 shadow-md rounded-2xl mt-4 mb-4 border border-[#166D3B]">
+                <table class="min-w-full border border-gray-300 rounded-lg overflow-hidden text-md">
+                    <thead>
+                        <tr class="bg-[#166D3B] text-white text-left">
+                            <th class="py-2 px-4 border">Exam ID</th>
+                            <th class="py-2 px-4 border">Student Name</th>
+                            <th class="py-2 px-4 border">Preferred Program</th>
+                            <th class="py-2 px-4 border">Predicted Program</th>
+                            <th class="py-2 px-4 border">Match Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if students %}
+                            {% for student in students %}
+                                <tr class="hover:bg-gray-100">
+                                    <td class="py-2 px-4 border text-center">{{ student[0] }}</td>
+                                    <td class="py-2 px-4 border">{{ student[1] }}</td>
+                                    <td class="py-2 px-4 border text-center">
+                                        {{ student[2] if student[2] else "—" }}
+                                    </td>
+                                    <td class="py-2 px-4 border text-center">
+                                        {% if student[2] and student[2] != "___" %}
+                                            <a href="{{ url_for('admin.adminSurveyResult', exam_id=student[0]) }}"
+                                            class="bg-[#166D3B] text-white px-3 py-1 rounded-lg shadow hover:bg-[#145c33]">
+                                            Result
+                                            </a>
+                                        {% else %}
+                                            ___
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2 px-4 border text-center">
+                                        {{ student[3] }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-gray-500">No students found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+                <div class="flex justify-between items-center mt-4">
+                    {% if page > 1 %}
+                        <a href="{{ url_for('admin.respondents', year=year, status=status_filter, q=search_query, page=page-1) }}"
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">⬅ Back</a>
+                    {% else %}
+                        <span class="px-4 py-2 text-gray-400">⬅ Back</span>
+                    {% endif %}
+
+                    <span class="text-gray-700">Page {{ page }} of {{ total_pages }}</span>
+
+                    {% if page < total_pages %}
+                        <a href="{{ url_for('admin.respondents', year=year, status=status_filter, q=search_query, page=page+1) }}"
+                        class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Next ➡</a>
+                    {% else %}
+                        <span class="px-4 py-2 text-gray-400">Next ➡</span>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    {% include 'components/footer.html' %}
+
+</body>
+</html>

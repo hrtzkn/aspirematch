@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROFILE</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/studentHeader.html' %}
+
+{% include 'components/studentSidebar.html' %}
+
+    <!-- MAIN CONTENT -->
+<div class="flex flex-1">
+    <main
+        class="flex-1 bg-[#f6ebcd] min-h-screen
+               pt-[90px] sm:pt-[110px]
+               px-4 sm:px-6 lg:px-8
+               lg:ml-72">
+
+        <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8
+                    rounded-lg shadow-lg border border-[#166D3B]">
+
+            <h2 class="text-xl font-bold mb-6">
+                Edit Profile
+            </h2>
+
+            <form action="/student/profile" method="POST">
+                <!-- GRID -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+
+                    <div>
+                        <label class="block mb-1">Fullname</label>
+                        <input type="text"
+                            name="fullname"
+                            value="{{ student.fullname }}"
+                            class="w-full p-2 border border-[#166D3B]
+                                   bg-[#f6ebcd] rounded-md">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1">Gender</label>
+                        <input type="text"
+                            name="gender"
+                            value="{{ student.gender }}"
+                            class="w-full p-2 border border-[#166D3B]
+                                   bg-[#f6ebcd] rounded-md">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block mb-1">Email Address</label>
+                    <input type="email"
+                        name="email"
+                        value="{{ student.email }}"
+                        class="w-full p-2 border border-[#166D3B]
+                               bg-[#f6ebcd] rounded-md">
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full sm:w-auto
+                           bg-[#166D3B] text-white
+                           py-2 px-6 rounded-lg
+                           hover:bg-green-800 transition">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    </main>
+</div>
+
+{% include 'components/footer.html' %}
+
+</body>
+</html>
