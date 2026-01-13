@@ -8,3 +8,7 @@ numpy
 WeasyPrint
 Werkzeug
 Jinja2
+
+# Database & migrations
+flask-sqlalchemy
+flask-migrate

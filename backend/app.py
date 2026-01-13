@@ -1,5 +1,6 @@
 from flask import Flask
 import os
+print(os.environ.get("DATABASE_URL"))
 from dotenv import load_dotenv
 
 load_dotenv()
