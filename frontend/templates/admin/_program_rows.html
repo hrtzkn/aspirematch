@@ -1,0 +1,32 @@
+            {% for program in programs %}
+            <tr class="hover:bg-gray-100">
+                <td class="px-4 py-2 border">{{ program[1] }}</td>
+                <td class="px-4 py-2 border text-start">
+                    {% if program[4] %}
+                        <span class="inline-block w-6 h-6 rounded-full border program-color"
+                            data-color="{{ program[4] }}">
+                        </span>
+                        <span class="ml-2 text-xs">{{ program[4] }}</span>
+                    {% else %}
+                        <button
+                            onclick="openColorPicker('{{ program[1] }}')"
+                            class="bg-[#166D3B] text-white px-3 py-1 rounded text-xs hover:bg-green-600">
+                            Add
+                        </button>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-2 border text-center">
+                    <button
+                        class="bg-[#166D3B] text-white px-3 py-1 rounded hover:bg-green-600 text-xs edit-program-btn"
+                        data-id="{{ program[0] }}"
+                        data-name="{{ program[1] }}"
+                        data-color="{{ program[4] or '#ffffff' }}">
+                        Edit
+                    </button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td class="px-4 py-2 text-center text-gray-500">No programs found</td>
+            </tr>
+            {% endfor %}

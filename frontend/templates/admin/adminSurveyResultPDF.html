@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Career Interest Survey Result</title>
+
+    <style>
+        /* PAGE SETTINGS (replaces pdfkit options) */
+        @page {
+            size: Letter;
+            margin: 0.5in;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .print-container {
+            width: 100%;
+            background: #fff;
+        }
+
+        /* HEADER */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .logos {
+            display: flex;
+            gap: 10px;
+            padding-right: 15px;
+            border-right: 2px solid #000;
+        }
+
+        .logos img {
+            height: 60px;
+        }
+
+        .school-info {
+            padding-left: 15px;
+            line-height: 1.4;
+        }
+
+        .school-info .country {
+            font-size: 11px;
+        }
+
+        .school-info .school {
+            font-size: 16px;
+            font-weight: bold;
+            color: #166D3B;
+            text-transform: uppercase;
+        }
+
+        .school-info .address {
+            font-size: 10px;
+        }
+
+        .center-title {
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .divider {
+            border: 1px solid #000;
+            margin: 10px 0 20px;
+        }
+
+        /* CONTENT */
+        h1 {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        ul {
+            padding-left: 18px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        .match {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .match.success {
+            color: green;
+        }
+
+        .match.fail {
+            color: red;
+        }
+
+        /* SIGNATORY */
+        .signatory {
+            margin-top: 80px;
+        }
+
+        .signatory .name {
+            font-size: 13px;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            padding-bottom: 3px;
+        }
+
+        .signatory .title {
+            font-size: 11px;
+            margin-left: 30px;
+            margin-top: 3px;
+            margin-left: 100px;
+        }
+
+        /* RESERVED SPACE */
+        .notes-box {
+            border: 1px solid #999;
+            height: 260px;
+            margin-top: 40px;
+        }
+
+        .ai-section-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 50px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+
+        .ai-page {
+            page: ai-page;
+        }
+
+        .student-info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .student-info-left {
+            width: 75%;
+            padding: 10px;
+            vertical-align: top;
+        }
+
+        .student-info-right {
+            width: 25%;
+            text-align: center;
+            vertical-align: top;
+            padding: 10px;
+        }
+
+        .student-photo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 1px solid #000;
+        }
+
+        .student-photo.placeholder {
+            width: 120px;
+            height: 120px;
+            border: 1px dashed #999;
+        }
+    </style>
+</head>
+
+<body>
+<div class="print-container">
+
+    <!-- HEADER -->
+    <table class="header-table">
+        <tr>
+            <td width="35%">
+                <div class="logos">
+                    <img src="data:image/png;base64,{{ cpsu_logo_base64 }}">
+                    <img src="data:image/png;base64,{{ bagong_logo_base64 }}">
+                    <img src="data:image/png;base64,{{ safe_logo_base64 }}">
+                </div>
+            </td>
+            <td class="school-info">
+                <div class="country">Republic of the Philippines</div>
+                <div class="school">Central Philippines State University</div>
+                <div class="school">{{ student_campus }}</div>
+                <div class="address">
+                    {% if student_campus == 'San Carlos Campus' %}
+                        San Carlos City, Negros Occidental 6127
+                    {% elif student_campus == 'Candoni Campus' %}
+                        Candoni, Negros Occidental 6110
+                    {% elif student_campus == 'Cauayan Campus' %}
+                        Poblacion Cauayan, Negros Occidental 6112
+                    {% elif student_campus == 'Moises Padilla Campus' %}
+                        Moises Padilla, Negros Occidental 6132
+                    {% elif student_campus == 'Kabankalan Campus' %}
+                            Kabanlakan City, Negros Occidental 6111
+                    {% elif student_campus == 'Hinigaran  Campus' %}
+                        Hinigaran, Negros Occidental 6119
+                    {% elif student_campus == 'Hinoba-an Campus' %}
+                        Hinoba-an, Negros Occidental 6114
+                    {% elif student_campus == 'Sipalay Campus' %}
+                        Sipalay City, Negros Occidental 6113
+                    {% elif student_campus == 'Victorias Campus' %}
+                        Vinctorias City, Negros Occidental 6119
+                    {% elif student_campus == 'Valladolid Extension Campus' %}
+                        Valladolid, Negros Occidental
+                    {% elif student_campus == 'Ilog  Campus' %}
+                        Municipality of Ilog, Negros Occidental 6109
+                    {% else %}
+                        Campus Address, Postcode
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="center-title">
+        Students’ Admission and Facilitative Enhancement (S.A.F.E.) Center
+    </div>
+
+    <hr class="divider">
+
+<table class="student-info-table">
+    <!-- TITLE ROW -->
+    <tr>
+        <td colspan="2" class="table-title">
+            Career Interest Survey Result
+        </td>
+    </tr>
+
+    <!-- CONTENT ROW -->
+    <tr>
+        <!-- LEFT SIDE: Student Info -->
+        <td class="student-info-left">
+            <p><strong>Exam ID:</strong> {{ student_data.exam_id }}</p>
+            <p><strong>Name:</strong> {{ student_data.fullname }}</p>
+            <p><strong>SY:</strong> {{ year }}</p>
+            <p>
+                <strong>Preferred Program:</strong>
+                {{ student_data.preferred_program }}
+            </p>
+        </td>
+
+        <!-- RIGHT SIDE: Photo -->
+        <td class="student-info-right">
+            {% if student_photo_base64 %}
+                <img
+                    src="data:image/jpeg;base64,{{ student_photo_base64 }}"
+                    class="student-photo"
+                >
+            {% else %}
+                <div class="student-photo placeholder"></div>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+    <!-- LETTER RESULTS -->
+    <div class="section">
+        <h2>Most Chosen Letters</h2>
+        <ul>
+            {% for letter in top_letters %}
+            <li>
+                <strong>{{ letter }}:</strong>
+                {{ letter_descriptions.get(letter, "No description available") }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- MATCH STATUS -->
+    <div class="section">
+        {% if match_status == "Match" %}
+            <p class="match success">
+                ✔ The preferred program and dominant interest areas MATCH
+            </p>
+        {% elif match_status == "Not Match" %}
+            <p class="match fail">
+                ✘ The preferred program and dominant interest areas DO NOT MATCH
+            </p>
+        {% else %}
+            <p class="match">
+                ⏳ Survey not yet completed
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- NOTES -->
+    <div class="notes-box"></div>
+
+    <!-- SIGNATORY -->
+    <div class="signatory">
+        <div class="name">DANILO A. ROBLICO JR., MAED-GC, RGC, LPT</div>
+        <div class="title">Guidance Counselor</div>
+    </div>
+
+</div>
+
+
+<div class="print-container page-break ai-page">
+    <div class="section1">
+        {{ student_data.ai_explanation | safe }}
+    </div>
+</div>
+</body>
+</html>

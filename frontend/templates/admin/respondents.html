@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESPONDENTS</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+    .hover-scroll {
+        max-width: 280px;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+    }
+
+    .hover-scroll span {
+        display: inline-block;
+        transform: translateX(0);
+        transition: transform 0.8s ease;
+    }
+
+    .hover-scroll:hover span {
+        transform: translateX(calc(-100% + 220px));
+    }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminBase.html' %}
+
+    <!-- MAIN CONTENT -->
+    <div class="flex flex-1">
+        <main class="ml-60 mr-2 flex-1 bg-[#f6ebcd] mt-24 rounded-2xl mb-20">
+            <div class="bg-white p-3 shadow-md rounded-md border border-[#166D3B] ">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold">RESPONDENTS</h1>
+
+                    <form method="GET" action="{{ url_for('admin.respondents') }}" class="flex items-center">
+                        <label class="text-black font-bold ml-2 mr-1">Year:</label>
+                        <select name="year" class="border border-[#166D3B] rounded-lg p-2"
+                                onchange="this.form.submit()">
+                            {% for y in available_years %}
+                                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+
+                    <form method="GET" action="{{ url_for('admin.respondents') }}" class="flex items-center ml-4">
+                        <input type="hidden" name="year" value="{{ year }}">
+                        <label class="text-black font-bold mr-1">Match Status:</label>
+                        <select name="status" class="border border-[#166D3B] rounded-lg p-2"
+                                onchange="this.form.submit()">
+                            <option value="" {% if status_filter == '' %}selected{% endif %}>All</option>
+                            <option value="match" {% if status_filter == 'match' %}selected{% endif %}>Match</option>
+                            <option value="not_match" {% if status_filter == 'not_match' %}selected{% endif %}>Not Match</option>
+                        </select>
+                    </form>
+
+                    <form method="GET" action="{{ url_for('admin.respondents') }}" class="flex items-center gap-2 w-fit max-w-sm ml-4">
+                    <input type="hidden" name="year" value="{{ year }}">
+                    <input type="hidden" name="status" value="{{ status_filter }}">
+                    <!-- Search Input Wrapper -->
+                    <div class="relative flex-1">
+                        <label for="search" class="sr-only">Search student</label>
+
+                        <!-- Search Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-black">
+                        <path d="M8.25 10.875a2.625 2.625 0 1 1 5.25 0 2.625 2.625 0 0 1-5.25 0Z" />
+                        <path fill-rule="evenodd"
+                                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75
+                                9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.125 4.5a4.125
+                                4.125 0 1 0 2.338 7.524l2.007 2.006a.75.75 0 1 0 1.06-1.06
+                                l-2.006-2.007a4.125 4.125 0 0 0-3.399-6.463Z"
+                                clip-rule="evenodd" />
+                        </svg>
+
+                        <!-- Input -->
+                        <input id="search"
+                            type="text"
+                            name="q"
+                            value="{{ search_query }}"
+                            placeholder="Search student..."
+                            class="w-full pl-10 pr-3 py-2 border border-[#166D3B] rounded-lg
+                                    text-gray-700 focus:outline-none focus:ring-2
+                                    focus:ring-[#166D3B]/40">
+                    </div>
+
+                    <!-- Button -->
+                    <button type="submit"
+                            class="bg-[#166D3B] text-white px-4 py-2 rounded-lg
+                                    hover:bg-[#145c33] transition">
+                        Search
+                    </button>
+                    </form>
+                </div>
+
+                <table class="w-full border border-[#166D3B] mt-3 rounded-lg text-[14px]">
+                    <thead>
+                        <tr class="bg-[#166D3B] border border-[#166D3B] text-white text-center">
+                            <th class="py-2 px-4 border">Exam ID</th>
+                            <th class="py-2 px-4 border">Student Name</th>
+                            <th class="py-2 px-4 border">Preferred Program</th>
+                            <th class="py-2 px-4 border">Predicted Program</th>
+                            <th class="py-2 px-4 border">Match Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if students %}
+                            {% for student in students %}
+                                <tr class="hover:bg-gray-100">
+                                    <td class="py-2 px-4 border text-center">{{ student[0] }}</td>
+                                    <td class="py-2 px-4 border text-start">
+                                        <div class="hover-scroll" title="{{ student[1] }}">
+                                            <span>{{ student[1] }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="py-2 px-4 border text-start">
+                                        {% if student[2] %}
+                                            <div class="hover-scroll" title="{{ student[2] }}">
+                                                <span>{{ student[2] }}</span>
+                                            </div>
+                                        {% else %}
+                                           <div class="text-center">
+                                           <span>——</span>
+                                           </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2 px-4 border text-center">
+                                        {% if student[2] and student[2] != "___" %}
+                                            <a href="{{ url_for('admin.adminSurveyResult', exam_id=student[0]) }}"
+                                            class="bg-[#166D3B] text-white px-3 py-1 rounded-lg shadow hover:bg-[#145c33]">
+                                            Result
+                                            </a>
+                                        {% else %}
+                                            ——
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-2 px-4 border text-center">
+                                        {{ student[3] }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-gray-500">No students found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+<div class="flex justify-between items-center mt-4">
+
+  <!-- PREVIOUS -->
+  {% if page > 1 %}
+    <a href="{{ url_for('admin.respondents',
+                        year=year,
+                        status=status_filter,
+                        q=search_query,
+                        page=page-1) }}"
+       class="bg-gray-300 text-gray-700 p-2 rounded-md
+              hover:bg-black hover:text-white transition flex items-center justify-center">
+
+      <!-- Left Arrow Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="currentColor" class="size-6">
+        <path fill-rule="evenodd"
+              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365
+                 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385
+                 2.25 12 2.25Zm-4.28 9.22a.75.75 0 0 0 0
+                 1.06l3 3a.75.75 0 1 0 1.06-1.06l-1.72-1.72
+                 h5.69a.75.75 0 0 0 0-1.5h-5.69l1.72-1.72a.75.75
+                 0 0 0-1.06-1.06l-3 3Z"
+              clip-rule="evenodd" />
+      </svg> BACK
+    </a>
+  {% else %}
+    <span class="bg-gray-200 text-black p-2 rounded-md flex items-center justify-center cursor-not-allowed">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="currentColor" class="size-6">
+        <path fill-rule="evenodd"
+              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365
+                 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385
+                 2.25 12 2.25Zm-4.28 9.22a.75.75 0 0 0 0
+                 1.06l3 3a.75.75 0 1 0 1.06-1.06l-1.72-1.72
+                 h5.69a.75.75 0 0 0 0-1.5h-5.69l1.72-1.72a.75.75
+                 0 0 0-1.06-1.06l-3 3Z"
+              clip-rule="evenodd" />
+      </svg> BACK
+    </span>
+  {% endif %}
+
+  <!-- PAGE INFO -->
+  <span class="text-gray-700 text-sm">
+    Page {{ page }} of {{ total_pages }}
+  </span>
+
+  <!-- NEXT -->
+  {% if page < total_pages %}
+    <a href="{{ url_for('admin.respondents',
+                        year=year,
+                        status=status_filter,
+                        q=search_query,
+                        page=page+1) }}"
+       class="bg-gray-300 text-gray-700 p-2 rounded-md
+              hover:bg-black hover:text-white transition flex items-center justify-center"> NEXT
+
+      <!-- Right Arrow Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="currentColor" class="size-6">
+        <path fill-rule="evenodd"
+              d="M12 2.25c-5.385 0-9.75 4.365-9.75
+                 9.75s4.365 9.75 9.75 9.75 9.75-4.365
+                 9.75-9.75S17.385 2.25 12 2.25Zm4.28
+                 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75
+                 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75
+                 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75
+                 0 1 0 1.06 1.06l3-3Z"
+              clip-rule="evenodd" />
+      </svg>
+    </a>
+  {% else %}
+    <span class="bg-gray-200 text-black p-2 rounded-md flex items-center justify-center cursor-not-allowed"> NEXT
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           fill="currentColor" class="size-6">
+        <path fill-rule="evenodd"
+              d="M12 2.25c-5.385 0-9.75 4.365-9.75
+                 9.75s4.365 9.75 9.75 9.75 9.75-4.365
+                 9.75-9.75S17.385 2.25 12 2.25Zm4.28
+                 10.28a.75.75 0 0 0 0-1.06l-3-3a.75.75
+                 0 1 0-1.06 1.06l1.72 1.72H8.25a.75.75
+                 0 0 0 0 1.5h5.69l-1.72 1.72a.75.75
+                 0 1 0 1.06 1.06l3-3Z"
+              clip-rule="evenodd" />
+      </svg>
+    </span>
+  {% endif %}
+
+</div>
+
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

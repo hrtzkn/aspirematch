@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN LOGIN</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+     <header class="bg-[#166D3B] h-24 w-full fixed top-0 shadow-md z-50">
+    <div class="max-w-7xl mx-auto h-full px-6 flex items-center justify-center">
+        <img src="/static/images/aspire.png" alt="AspireMatch Logo" class="max-h-24 w-auto">
+      <h1 class="text-[#f6ebcd] text-3xl font-semibold tracking-wide text-center">
+        ASPIREMATCH: <span class="font-light">A Career Interest Recommendation Application</span>
+      </h1>
+    </div>
+  </header>
+
+    <div class="grow flex flex-col mt-10 justify-center items-center">
+        <div class="bg-white p-10 rounded-lg shadow-lg w-150 flex flex-col items-center">
+<form method="POST" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-bold text-center mb-4">
+        Verify Email
+    </h2>
+
+    {% if error %}
+    <p id="otpError"
+    class="text-red-600 text-center mb-3"
+    data-remaining="{{ remaining if remaining }}">
+        {% if remaining %}
+            Please wait <span id="countdown">{{ remaining }}</span>s before resending OTP.
+        {% else %}
+            {{ error }}
+        {% endif %}
+    </p>
+    {% endif %}
+
+    {% if success %}
+    <p class="text-green-600 text-center mb-3">{{ success }}</p>
+    {% endif %}
+
+    <input type="text"
+           name="otp"
+           maxlength="6"
+           class="w-full p-2 border rounded mb-4 text-center tracking-widest"
+           placeholder="Enter OTP">
+
+    <button type="submit"
+            name="action"
+            value="verify"
+            class="bg-[#166D3B] text-white w-full p-2 rounded mb-3">
+        Verify OTP
+    </button>
+
+    <button type="submit"
+            name="action"
+            value="resend"
+            class="text-sm text-[#166D3B] w-full underline">
+        Resend OTP
+    </button>
+</form>
+
+        </div>
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const errorEl = document.getElementById("otpError");
+    const countdownEl = document.getElementById("countdown");
+
+    if (!errorEl || !countdownEl) return;
+
+    let remaining = parseInt(errorEl.dataset.remaining);
+    if (isNaN(remaining)) return;
+
+    const interval = setInterval(() => {
+        remaining--;
+
+        if (remaining <= 0) {
+            clearInterval(interval);
+            errorEl.innerHTML = "You can now resend the OTP.";
+        } else {
+            countdownEl.innerText = remaining;
+        }
+    }, 1000);
+});
+</script>
+
+    {% include 'components/footer.html' %}
+
+</body>
+</html>

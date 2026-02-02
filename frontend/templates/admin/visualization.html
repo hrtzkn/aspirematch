@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISUALIZATIONS</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/adminBase.html' %}
+
+<!-- MAIN CONTENT -->
+<div class="flex flex-1">
+<main class="ml-60 mr-2 flex-1 bg-[#f6ebcd] mt-24 rounded-md mb-20">
+    <div class="bg-white p-3 shadow-md rounded-md border border-[#166D3B] ">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">VISUALIZATION</h1>
+        <button 
+          id="ai-generate-btn"
+          onclick="generateAIInsights()"
+          class="bg-[#166D3B] text-white px-4 py-2 text-sm rounded-md shadow-md hover:bg-green-900 disabled:opacity-60 disabled:cursor-not-allowed">
+          🤖 Generate AI Insights
+        </button>
+
+        <form method="GET" action="{{ url_for('admin.visualization') }}" class="flex items-center">
+          <label class="text-black ml-2 mr-1 font-bold">Year:</label>
+          <select name="year" class="border border-[#166D3B] rounded-md p-2" onchange="this.form.submit()">
+            {% for y in available_years %}
+              <option value="{{ y }}" {% if year|string == y|string %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+            <option value="All" {% if year|string == 'All' %}selected{% endif %}>All</option>
+          </select>
+
+        <label class="text-black font-bold ml-2 mr-1">Gender:</label>
+        <select name="gender" class="border border-[#166D3B] rounded-md p-2" onchange="this.form.submit()">
+            <option value="All" {% if gender|string == 'All' %}selected{% endif %}>All</option>
+            <option value="Male" {% if gender|string == 'Male' %}selected{% endif %}>Male</option>
+            <option value="Female" {% if gender|string == 'Female' %}selected{% endif %}>Female</option>
+        </select>
+        </form>
+      </div>
+    </div>
+
+    <div id="charts-container"></div>
+    <div id="ai-insights" class="hidden mt-6 mb-4 p-10 bg-white border border-[#166D3B] rounded-md shadow-md">
+      <h2 class="text-xl font-bold mb-2">AI Insights & Recommendations</h2>
+      <div id="ai-insights-text" class="text-gray-800 leading-relaxed whitespace-pre-line"></div>
+    </div>
+  </main>
+</div>
+
+<div id="letterDescriptionModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  
+  <div class="bg-white w-200 max-h-[80vh] overflow-y-auto rounded-md shadow-xl p-6 relative">
+    
+    <button onclick="closeLetterDescription()"
+            class="absolute top-3 right-4 text-gray-500 hover:text-black text-xl">
+      ✕
+    </button>
+
+    <h2 class="text-lg font-bold mb-3 text-[#166D3B]">
+      Letter Descriptions
+    </h2>
+
+    <div id="letterDescriptionContent" class="space-y-3 text-sm"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script id="data-json" type="application/json">
+  {{ all_years_data | tojson }}
+</script>
+
+<script id="letter-desc-data" type="application/json">
+    {{ letter_descriptions | tojson }}
+</script>
+
+<script>
+const LETTER_DESCRIPTIONS = JSON.parse(
+    document.getElementById("letter-desc-data").textContent
+);
+
+function wrapLabel(label, maxChars = 22) {
+    if (!label) return '';
+    if (label.length <= maxChars) return label;
+    const regex = new RegExp(`.{1,${maxChars}}`, 'g');
+    return label.match(regex).join('\n');
+}
+
+function generateRandomColor() {
+    const hue = Math.floor(Math.random() * 360);
+    return `hsl(${hue}, 70%, 55%)`;
+}
+
+try {
+    const allDataElem = document.getElementById('data-json');
+    if (!allDataElem) throw new Error("Data element not found");
+
+    const allData = JSON.parse(allDataElem.textContent || '[]');
+    const container = document.getElementById('charts-container');
+    container.innerHTML = "";
+
+    let ALL_PROGRAMS = [];
+    try {
+        ALL_PROGRAMS = JSON.parse('{{ all_programs | tojson | safe }}');
+        if (!Array.isArray(ALL_PROGRAMS)) throw new Error("ALL_PROGRAMS is not an array");
+    } catch (e) {
+        console.error("Error parsing all_programs:", e);
+        ALL_PROGRAMS = [];
+    }
+
+    const FULL_PROGRAM_LABELS = ALL_PROGRAMS.map(p => p[1] || 'Unknown');
+    const PROGRAM_COLORS = ALL_PROGRAMS.map(p => p[2] || '#f6ebcd');
+    const PROGRAM_LABELS = FULL_PROGRAM_LABELS.map(name => wrapLabel(name, 22));
+
+    const ALL_LETTERS = Array.from({ length: 18 }, (_, i) => String.fromCharCode(65 + i));
+
+    if (!Array.isArray(allData) || allData.length === 0) {
+        container.innerHTML = "<p class='text-center text-gray-600 mt-10'>No data available for the selected year.</p>";
+    } else {
+        allData.forEach((yearData, idx) => {
+            const yearSection = document.createElement('div');
+            yearSection.className = 'mb-10';
+
+            yearSection.innerHTML = `
+                <h2 class="text-xl font-bold mt-4 mb-4">Year: ${yearData.year} — Gender: ${yearData.gender}</h2>
+
+                <div class="bg-white p-6 w-full rounded-md shadow-md mb-8 border border-[#166D3B]">
+                    <h3 class="text-lg font-bold mb-4">Most Chosen Preferred Program</h3>
+                    <canvas id="preferredProgramChart-${idx}" width="950" height="300"></canvas>
+                </div>
+
+                <div class="bg-white p-6 mb-16  rounded-md shadow-md border border-[#166D3B]">
+                    <h3 class="text-lg font-bold mb-4">Top Chosen Letters</h3>
+                    <button onclick="openLetterDescription()"
+                            class="right-4 mb-4 text-sm bg-[#166D3B] text-white px-4 py-2 rounded-md hover:bg-green-800">
+                        Description
+                    </button>
+                    <canvas id="topLettersChart-${idx}" width="800" height="300"></canvas>
+                </div>
+            `;
+            container.appendChild(yearSection);
+
+            const programData = FULL_PROGRAM_LABELS.map(fullName => {
+                const index = yearData.preferred_labels.indexOf(fullName);
+                return index >= 0 ? yearData.preferred_counts[index] : 0;
+            });
+
+            new Chart(document.getElementById(`preferredProgramChart-${idx}`), {
+                type: 'bar',
+                data: {
+                    labels: PROGRAM_LABELS,
+                    datasets: [{
+                        label: 'Number of Students',
+                        data: programData,
+                        backgroundColor: programData.map((v, i) => v > 0 ? PROGRAM_COLORS[i] : 'rgba(0,0,0,0.1)')
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    scales: {
+                        x: {
+                            ticks: { 
+                                font: { size: 8 },
+                                callback: val => PROGRAM_LABELS[val].split('\n')
+                            }
+                        },
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: () => '',
+                                label: function(context) {
+                                    const fullName = FULL_PROGRAM_LABELS[context.dataIndex];
+                                    const count = context.raw;
+                                    return `Number of Students: ${count}`;
+                                },
+                                afterLabel: function(context) {
+                                    const fullName = FULL_PROGRAM_LABELS[context.dataIndex];
+                                    return fullName;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const letterData = ALL_LETTERS.map(letter => {
+                const index = yearData.top_labels.indexOf(letter);
+                return index >= 0 ? yearData.top_counts[index] : 0;
+            });
+
+            const letterColors = ALL_LETTERS.map(() => generateRandomColor());
+
+            new Chart(document.getElementById(`topLettersChart-${idx}`), {
+                type: 'bar',
+                data: {
+                    labels: ALL_LETTERS,
+                    datasets: [{
+                        label: 'Number of Selections',
+                        data: letterData,
+                        backgroundColor: letterColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Choose letter ${context.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    }
+} catch (err) {
+    console.error("Visualization error:", err);
+    document.getElementById('charts-container').innerHTML =
+        "<p class='text-center text-red-600 mt-10'>An error occurred while rendering charts.</p>";
+}
+
+function openLetterDescription() {
+    const modal = document.getElementById("letterDescriptionModal");
+    const content = document.getElementById("letterDescriptionContent");
+
+    content.innerHTML = "";
+
+    Object.entries(LETTER_DESCRIPTIONS).forEach(([letter, desc]) => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <strong>${letter}</strong> — ${desc}
+        `;
+        content.appendChild(div);
+    });
+
+    modal.classList.remove("hidden");
+}
+
+function closeLetterDescription() {
+    document.getElementById("letterDescriptionModal").classList.add("hidden");
+}
+
+function generateAIInsights() {
+  const btn = document.getElementById("ai-generate-btn");
+  const originalText = btn.innerHTML;
+
+  btn.innerHTML = "⏳ Generating...";
+  btn.disabled = true;
+
+  const allData = JSON.parse(
+    document.getElementById('data-json').textContent || '[]'
+  );
+
+  fetch("/admin/generate_ai_visualization_insights", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: allData })
+  })
+  .then(res => res.json())
+  .then(result => {
+    let cleanText = result.insights
+      .replace(/#+/g, "")
+      .replace(/\n/g, "<br>");
+
+    document.getElementById("ai-insights-text").innerHTML = cleanText.trim();
+    document.getElementById("ai-insights").classList.remove("hidden");
+  })
+  .catch(err => {
+    console.error(err);
+    alert("AI error occurred.");
+  })
+  .finally(() => {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  });
+}
+
+</script>
+
+</body>
+</html>

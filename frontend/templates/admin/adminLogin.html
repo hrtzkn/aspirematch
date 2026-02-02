@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN LOGIN</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+     <header class="bg-[#166D3B] h-24 w-full fixed top-0 shadow-md z-50">
+    <div class="max-w-7xl mx-auto h-full px-6 flex items-center justify-center">
+        <img src="/static/images/aspire.png" alt="AspireMatch Logo" class="max-h-24 w-auto">
+      <h1 class="text-[#f6ebcd] text-3xl font-semibold tracking-wide text-center">
+        ASPIREMATCH: <span class="font-light">A Career Interest Recommendation Application</span>
+      </h1>
+    </div>
+  </header>
+
+    <div class="grow flex flex-col mt-10 justify-center items-center">
+        <div class="bg-white p-10 rounded-lg shadow-lg w-150 flex flex-col items-center">
+            <div>
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="h-24">
+            </div>                  
+            <h2 class="text-2xl font-bold text-center text-black mb-6">Log In to access your Account</h2>
+
+            {% if error %}
+                <div class="text-red-600 font-medium text-center mb-4">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form action="{{ url_for('admin.login') }}" method="POST" class="w-full">
+                <div class="mb-4">
+                    <label for="username" class="block text-[#166D3B]">Username</label>
+                    <input type="text" name="username" id="username" class="w-full p-2 border border-black rounded-md" required>
+                    
+                    <label for="password" class="block text-[#166D3B] mt-2">Password</label>
+                    <input type="password" name="password" id="password" class="w-full p-2 border border-black rounded-md" required>
+                </div>
+                <button
+                    type="submit"
+                    {% if locked %}disabled{% endif %}
+                    class="w-full p-2 text-white rounded-md mt-6 font-light tracking-widest
+                        {% if locked %}
+                            bg-gray-400 cursor-not-allowed
+                        {% else %}
+                            bg-[#166D3B] hover:bg-green-700
+                        {% endif %}">
+                    {% if locked %}
+                        Login Locked
+                    {% else %}
+                        Login
+                    {% endif %}
+                </button>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('admin.forgot_password') }}"
+                    class="text-sm text-[#166D3B] underline">
+                        Forgot password?
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% include 'components/footer.html' %}
+
+</body>
+</html>

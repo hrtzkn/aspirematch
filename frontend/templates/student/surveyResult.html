@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SURVEY RESULT</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+    @media print {
+        .print\:hidden {
+            display: none !important;
+        }
+    }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-[#f6ebcd]">
+
+{% include 'components/studentHeader.html' %}
+
+{% include 'components/studentSidebar.html' %}
+
+    <!-- MAIN CONTENT -->
+    <div class="flex flex-1">
+        <main
+            class="flex-1 bg-[#f6ebcd]
+                px-3 sm:px-4 md:px-6 lg:px-8
+                pt-4 lg:pt-[110px]
+                pb-16
+                min-h-screen
+                lg:ml-72">
+        <div class="flex flex-col sm:flex-row sm:justify-between gap-3 mb-4">
+            <button
+                id="generateAIBtn"
+                class="bg-[#166D3B] hover:bg-green-700 text-white
+                    text-xs sm:text-sm lg:text-lg
+                    px-4 sm:px-6 py-2 rounded w-full sm:w-auto">
+                Generate AI Explanation
+            </button>
+
+            <a href="{{ url_for('student.download_pdf', student_id=session['student_id']) }}"
+            class="bg-[#166D3B] hover:bg-green-700 text-white
+                    text-xs sm:text-sm lg:text-lg
+                    px-4 sm:px-6 py-2 rounded text-center w-full sm:w-auto">
+                Download (.pdf)
+            </a>
+        </div>
+
+            <div
+                class="print-container relative shadow-lg bg-white
+                    p-4 sm:p-5 lg:p-6
+                    rounded-2xl border border-[#166D3B]
+                    w-full max-w-[816px]
+                    min-h-[550px] lg:min-h-[1056px]
+                    mx-auto overflow-x-hidden">
+                <table style="width: 100%;" class="mt-4">
+                    <tr>
+                        <td style="width: 36%;" >
+                            <div class="flex flex-wrap items-center gap-2 pl-8 lg:pl-16 ">
+                                <img src="{{ url_for('static', filename='images/cpsulogo.png') }}" class="h-5 lg:h-14">
+                                <img src="{{ url_for('static', filename='images/bagong-pilipinas-logo.png') }}" class="h-7 lg:h-16">
+                                <img src="{{ url_for('static', filename='images/logo.png') }}" class="h-5 lg:h-14">
+                            </div>
+                        </td>
+                    
+                        <td class="text-left px-4 lg:px-6 border-l-2 border-black leading-snug">
+                            <div class="text-black text-[6px] lg:text-sm">
+                                Republic of the Philippines
+                            </div>
+
+                            <div class="text-green-600 font-bold uppercase
+                                        text-[7px] lg:text-base">
+                                Central Philippines State University
+                            </div>
+
+                            
+                            <div class="text-green-600 font-bold uppercase
+                                        text-[7px] lg:text-base">
+                                {{ student_campus }}
+                            </div>
+                            {% if student_campus == 'San Carlos Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                San Carlos City, Negros Occidental 6127
+                            </div>
+                            {% elif student_campus == 'Candoni Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Candoni, Negros Occidental 6110
+                            </div>
+                            {% elif student_campus == 'Cauayan Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Poblacion Cauayan, Negros Occidental 6112
+                            </div>
+                            {% elif student_campus == 'Moises Padilla Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Moises Padilla, Negros Occidental 6132
+                            </div>
+                            {% elif student_campus == 'Kabankalan Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Kabanlakan City, Negros Occidental 6111
+                            </div>
+                            {% elif student_campus == 'Hinigaran  Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Hinigaran, Negros Occidental 6119
+                            </div>
+                            {% elif student_campus == 'Hinoba-an Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Hinoba-an, Negros Occidental 6114
+                            </div>
+                            {% elif student_campus == 'Sipalay Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                               Sipalay City, Negros Occidental 6113
+                            </div>
+                            {% elif student_campus == 'Victorias Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Vinctorias City, Negros Occidental 6119
+                            </div>
+                            {% elif student_campus == 'Valladolid Extension Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Valladolid, Negros Occidental
+                            </div>
+                            {% elif student_campus == 'Ilog  Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Municipality of Ilog, Negros Occidental 6109
+                            </div>
+                            {% elif student_campus == 'Victorias Campus' %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Vinctorias City, Negros Occidental 6119
+                            </div>
+                            {% else %}
+                            <div class="text-black text-[5px] lg:text-xs">
+                                Campus Address, Postcode
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                  </table>
+                  
+                <div class="text-center mb-1 lg:mb-4 font-bold uppercase
+                            text-[5px] lg:text-base text-black">
+                    Students’ Admission and Facilitative Enhancement (S.A.F.E.) Center
+                </div>
+
+                <hr class="border border-black w-[300px] lg:w-[700px] ml-4 lg:ml-8 mb-1 lg:mb-4">
+<div class="relative ml-8 mr-8 mt-3">
+
+                <h1 class="text-[10px] lg:text-2xl font-bold text-center mb-3">Career Interest Survey Result</h1>
+
+    <!-- Student Info -->
+    <div>
+        <h2 class="text-[8px] lg:text-lg">
+            <strong>Exam ID: </strong>{{ student_results.exam_id }}
+        </h2>
+        <h2 class="text-[8px] lg:text-lg">
+            <strong>Name: </strong>{{ student_results.fullname }}
+        </h2>
+        <h2 class="text-[8px] lg:text-lg">
+            <strong>SY: </strong>{{ year }}
+        </h2>
+
+        <div class=" mt-1 lg:mt-3">
+            <p class="text-[8px] lg:text-lg">
+                <strong>Preferred Program:</strong> {{ student_results.preferred_program }}
+            </p>
+        </div>
+    </div>
+
+<!-- FLOATING BOX (Right Side) -->
+<div class="absolute top-0 lg:top-0 right-0 lg:right-5 w-[70px] lg:w-[120px]">
+
+    {% if student_results.photo %}
+        <!-- EXISTING PHOTO + CHANGE BUTTON -->
+        <div class="border border-black p-1 text-center print:hidden">
+            <img src="{{ url_for('static', filename='uploads/students/' ~ student_results.photo) }}"
+                 class="w-[110px] h-[110px] object-cover mx-auto">
+
+                <a href="{{ url_for('student.profile') }}" 
+                        class="bg-[#166D3B] text-white text-[11px] p-1 w-full rounded">
+                    Change Photo
+                </a>
+        </div>
+
+    {% else %}
+        <!-- FIRST-TIME UPLOAD -->
+        <div class="border border-black h-[70px] lg:h-[120px] p-2 flex flex-col justify-between items-center print:hidden">
+
+            <img src="{{ url_for('static', filename='images/1x1.jpg') }}"
+                 class="w-[30px] lg:w-[70px] h-[30px] lg:h-[70px] opacity-50">
+
+            <a href="{{ url_for('student.profile') }}"
+                    class="bg-[#166D3B] text-white text-center text-[5px] lg:text-[11px] mt-1 p-1 w-full rounded">
+                Upload 1×1
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+</div>
+
+                <div class="section mb-2 ml-8 mr-8 mt-1 lg:mt-3 text-justify">
+                    <h2 class=" font-bold text-[8px] lg:text-lg">Most Chosen Letters</h2>
+                    <ul class="list-disc list-inside text-[8px] lg:text-lg">
+                        {% for letter in top_letters %}
+                            <li><strong>{{ letter }}:</strong> {{ letter_descriptions.get(letter, "No description available") }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="section ml-8 mr-8">
+                    {% if match_status == "Match" %}
+                        <p class="text-green-700 font-semibold text-[8px] lg:text-lg">✔ The preferred program and most chosen letter is MATCH</p>
+                    {% elif match_status == "Not Match" %}
+                        <p class="text-red-700 font-semibold text-[8px] lg:text-lg">✘ The preferred program and most chosen letter is NOT MATCH</p>
+                    {% elif match_status == "Not Yet Answer" %}
+                        <p class="text-gray-600 font-semibold text-[8px] lg:text-lg">⚠ The student has not yet answered the survey</p>
+                    {% endif %}
+                </div>
+
+                <div class="section border border-gray-400 p-4 lg:p-6 mt-7 lg:mt-10 rounded
+                            h-[150px] lg:h-[260px] overflow-auto ml-8 mr-8">
+                </div>
+
+                <div class="mt-4 lg:mt-12 text-left ml-8 mb-4 lg:mb-8">
+                    <h2 class="text-[6px] lg:text-sm font-bold text-left mb-1"><span class="border-b border-black pb-1 inline-block">DANILO A. ROBLICO JR. MAED-GC, RGC, LPT</span></h2>
+                    <h3 class="text-[8px] lg:text-sm text-left ml-6 lg:ml-20">Guidance Counselor</h3>
+                </div>
+            </div>
+
+            <div
+                class="print-container shadow-lg bg-white p-4 lg:p-8 mt-2 lg:mt-4 mb-14 lg:mb-4
+                        rounded-2xl border border-[#166D3B]
+                        w-full lg:w-[816px]
+                        h-fit lg:h-fit
+                        mx-auto overflow-x-auto">
+        
+                <div
+                    id="aiExplanationBox"
+                    class="p-4 rounded whitespace-pre-line text-[9px] lg:text-[16px] text-justify leading-relaxed text-gray-800"
+                >
+                    {{ student_results.ai_explanation | safe
+                    if student_results.ai_explanation
+                    else 'Click "Generate AI Explanation" to view your AI career guidance.' }}
+                </div>
+            </div>
+        </main>      
+    </div>
+
+<div id="surveyData"
+  data-fullname="{{ student_results.fullname | e }}"
+  data-preferred-program="{{ student_results.preferred_program | e }}"
+  data-top-letters="{{ top_letters | join(',') }}">
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const surveyData = document.getElementById("surveyData");
+    const generateBtn = document.getElementById("generateAIBtn");
+    const explanationBox = document.getElementById("aiExplanationBox");
+
+    generateBtn.addEventListener("click", async () => {
+
+        generateBtn.disabled = true;
+        generateBtn.textContent = "Generating...";
+
+        explanationBox.textContent = "Generating your AI career explanation...";
+
+        try {
+            const response = await fetch("/student/generate-ai-explanation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fullname: surveyData.dataset.fullname,
+                    preferred_program: surveyData.dataset.preferredProgram,
+                    top_letters: surveyData.dataset.topLetters.split(",")
+                })
+            });
+
+            const data = await response.json();
+            const sections = [
+            "Career Letter Explanation",
+            "Strengths",
+            "Weaknesses",
+            "Personalized Career Advice",
+            "Recommended Courses or Subjects"
+            ];
+
+            let formattedText = data.explanation;
+
+            // 🔥 FIX 1: Remove excessive blank lines (more than 1)
+            formattedText = formattedText.replace(/\n{3,}/g, "\n\n");
+
+            // 🔥 FIX 2: Trim leading & trailing spaces
+            formattedText = formattedText.trim();
+
+            // 🔥 FIX 3: Highlight section titles
+            sections.forEach(title => {
+            const regex = new RegExp(`\\b${title}\\b`, "gi");
+            formattedText = formattedText.replace(
+                regex,
+                `<div class=" font-semibold text-black uppercase tracking-wide">${title}</div>`
+            );
+            });
+
+            // 🔥 FIX 4: Bullet spacing
+            formattedText = formattedText.replace(/•/g, "•");
+
+            explanationBox.innerHTML = formattedText;
+
+        } catch (err) {
+            explanationBox.textContent = "Failed to generate explanation.";
+            console.error(err);
+        }
+
+        generateBtn.disabled = false;
+        generateBtn.textContent = "Generate AI Explanation";
+    });
+
+});
+
+function formatAIExplanation(text) {
+    const sections = [
+        "Career Letter Explanation",
+        "Strengths",
+        "Weaknesses",
+        "Personalized Career Advice",
+        "Recommended Courses or Subjects"
+    ];
+
+    let formattedText = text;
+
+    // Remove excessive blank lines
+    formattedText = formattedText.replace(/\n{3,}/g, "\n\n").trim();
+
+    // Highlight section titles
+    sections.forEach(title => {
+        const regex = new RegExp(`\\b${title}\\b`, "gi");
+        formattedText = formattedText.replace(
+            regex,
+            `<div class="font-semibold text-black uppercase tracking-wide mt-4">${title}</div>`
+        );
+    });
+
+    return formattedText;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const explanationBox = document.getElementById("aiExplanationBox");
+
+    // If explanation already exists (from DB)
+    if (explanationBox.textContent.trim() !==
+        'Click "Generate AI Explanation" to view your AI career guidance.') {
+
+        explanationBox.innerHTML = formatAIExplanation(
+            explanationBox.textContent
+        );
+    }
+});
+</script>
+
+
+{% include 'components/footer.html' %}
+
+</body>
+</html>
