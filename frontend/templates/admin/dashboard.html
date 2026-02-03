@@ -14,9 +14,9 @@
 
     <!-- MAIN CONTENT -->
     <div class="flex flex-1">
-        <main class="ml-60 mr-2 flex-1 bg-[#f6ebcd] mt-24 rounded-2xl">
+        <main class="ml-60 mr-2 flex-1 bg-white p-6 mb-16 mt-24 shadow-md rounded-md border border-[#166D3B]">
 
-            <div class="bg-white p-6 shadow-md rounded-2xl border border-[#166D3B]">
+            <div class=" ">
                 <div class="flex justify-between">
                     
                     <div class="flex justify-center gap-3">
@@ -83,14 +83,14 @@
                             name="q"
                             value="{{ search_query }}"
                             placeholder="Search student..."
-                            class="w-full pl-10 pr-3 py-2 border border-[#166D3B] rounded-lg
+                            class="w-full pl-10 pr-3 py-2 border border-[#166D3B] rounded-md
                                     text-gray-700 focus:outline-none focus:ring-2
                                     focus:ring-[#166D3B]/40">
                     </div>
 
                     <!-- Button -->
                     <button type="submit"
-                            class="bg-[#166D3B] text-white px-4 py-2 rounded-lg
+                            class="bg-[#166D3B] text-white px-4 py-2 rounded-md
                                     hover:bg-[#145c33] transition">
                         Search
                     </button>
@@ -100,20 +100,101 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-6  mt-4">
-                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-[#166D3B]">
-                    <h3 class="text-black text-lg">Total Students</h3>
-                    <p class="text-3xl font-bold text-[#166D3B]">{{ total_students }}</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-[#166D3B]">
-                    <h3 class="text-black text-lg">Pendings</h3>
-                    <p class="text-3xl font-bold text-[#166D3B]">{{ pending_students }}</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-[#166D3B]">
-                    <h3 class="text-black text-lg">Active Admin</h3>
-                    <p class="text-3xl font-bold text-[#166D3B]">{{ active_admins }}</p>
-                </div>
+<!-- Student Totals with Curve -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+
+    <!-- Students Curve Card -->
+    <div class="bg-white p-6 rounded-2xl shadow-md border border-[#166D3B] relative flex flex-col items-center">
+        <h3 class="text-black text-lg mb-4">Students</h3>
+
+        <!-- Doughnut / C Curve -->
+        <svg viewBox="0 0 36 36" class="w-40 h-40">
+            <!-- Background Circle -->
+            <path
+                class="text-gray-200"
+                d="M18 2.0845
+                   a 15.9155 15.9155 0 1 1 0 31.831
+                   a 15.9155 15.9155 0 1 1 0 -31.831"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+            />
+
+            <!-- Completed Students -->
+            {% set completed_percentage = ((total_students - pending_students) / total_students * 100) if total_students > 0 else 0 %}
+            <path
+                class="text-[#166D3B]"
+                d="M18 2.0845
+                   a 15.9155 15.9155 0 1 1 0 31.831"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="4"
+                stroke-dasharray="{{ completed_percentage }}, 100"
+                stroke-linecap="round"
+                transform="rotate(-90 18 18)"
+            />
+        </svg>
+
+        <!-- Percentage inside Circle -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-2xl font-bold text-[#166D3B]">{{ completed_percentage|round(0) }}%</span>
+            <span class="text-sm text-gray-500">Completed</span>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex justify-center mt-4 space-x-6 text-sm">
+            <div class="flex items-center space-x-1">
+                <span class="w-4 h-4 bg-[#166D3B] inline-block rounded"></span>
+                <span>Completed</span>
             </div>
+            <div class="flex items-center space-x-1">
+                <span class="w-4 h-4 bg-gray-200 inline-block rounded"></span>
+                <span>Pending</span>
+            </div>
+        </div>
+
+        <!-- Total and Pending Numbers -->
+        <div class="mt-4 flex justify-between w-full px-6 text-sm text-gray-700">
+            <span>Total: {{ total_students }}</span>
+            <span>Pending: {{ pending_students }}</span>
+        </div>
+    </div>
+
+    <!-- Admins Section -->
+    <div class="bg-white p-6 rounded-md shadow-md border border-[#166D3B]">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-black text-lg font-bold">Admins</h3>
+            <a href="{{ url_for('admin.addAdmin') }}"
+               class="bg-[#166D3B] text-white px-4 py-2 rounded hover:bg-[#145a2d]">
+               Add Admin
+            </a>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border border-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 border-b">Full Name</th>
+                        <th class="px-4 py-2 border-b">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 border-b">{{ admin[0] }}</td>
+                        <td class="px-4 py-2 border-b">{{ admin[1] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="2" class="px-4 py-2 text-center text-gray-500">No admins found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
 
         </main>        
     </div>

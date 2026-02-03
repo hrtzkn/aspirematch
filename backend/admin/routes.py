@@ -432,6 +432,7 @@ def dashboard():
     conn = get_db_connection()
     cur = conn.cursor()
 
+    # Get logged-in admin info
     cur.execute(
         "SELECT fullname, campus FROM admin WHERE username = %s;",
         (session["admin_username"],)
@@ -441,7 +442,6 @@ def dashboard():
         cur.close()
         conn.close()
         return redirect(url_for("admin.login"))
-
     fullname, admin_campus = admin_row
 
     # Available years
@@ -453,9 +453,7 @@ def dashboard():
     available_years = [row[0] for row in cur.fetchall()]
 
     selected_year = request.args.get("year", type=int) or datetime.now().year
-
     search_query = request.args.get("q", "").strip()
-
     searched_students = []
 
     if search_query:
@@ -464,30 +462,20 @@ def dashboard():
             FROM student
             WHERE campus = %s
             AND EXTRACT(YEAR FROM created_at) = %s
-            AND (
-                    LOWER(fullname) LIKE LOWER(%s)
-                    OR exam_id ILIKE %s
-                )
+            AND (LOWER(fullname) LIKE LOWER(%s) OR exam_id ILIKE %s)
             ORDER BY fullname ASC;
-        """, (
-            admin_campus,
-            selected_year,
-            f"%{search_query}%",
-            f"%{search_query}%"
-        ))
+        """, (admin_campus, selected_year, f"%{search_query}%", f"%{search_query}%"))
         searched_students = cur.fetchall()
 
-    # counts (unchanged)
+    # Student counts
     cur.execute("""
-        SELECT COUNT(*)
-        FROM student
-        WHERE EXTRACT(YEAR FROM created_at) = %s
-        AND campus = %s;
+        SELECT COUNT(*) FROM student
+        WHERE EXTRACT(YEAR FROM created_at) = %s AND campus = %s;
     """, (selected_year, admin_campus))
     total_students = cur.fetchone()[0]
 
     cur.execute("""
-        SELECT COUNT(*)
+        SELECT COUNT(*) 
         FROM student s
         LEFT JOIN student_survey_answer a
             ON a.student_id = s.id OR a.exam_id = s.exam_id
@@ -504,6 +492,23 @@ def dashboard():
     """)
     active_admins = cur.fetchone()[0]
 
+    # Fetch all admins with active status
+    cur.execute("""
+        SELECT a.fullname,
+               CASE 
+                   WHEN l.last_login >= NOW() - INTERVAL '1 month' THEN 'Active'
+                   ELSE 'Inactive'
+               END AS status
+        FROM admin a
+        LEFT JOIN (
+            SELECT admin_username, MAX(created_at) AS last_login
+            FROM admin_logs
+            GROUP BY admin_username
+        ) l ON a.username = l.admin_username
+        ORDER BY a.fullname ASC;
+    """)
+    admins = cur.fetchall()  # List of tuples: (fullname, status)
+
     cur.close()
     conn.close()
 
@@ -518,7 +523,8 @@ def dashboard():
         year=selected_year,
         available_years=available_years,
         searched_students=searched_students,
-        search_query=search_query
+        search_query=search_query,
+        admins=admins
     )
 
 @admin_bp.route("/edit-student", methods=["POST"])
