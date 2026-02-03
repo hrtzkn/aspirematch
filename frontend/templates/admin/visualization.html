@@ -16,12 +16,15 @@
 
 <!-- MAIN -->
 <div class="flex flex-1">
-<main class="ml-60 mr-2 flex-1 mt-24 mb-20">
+<main class="ml-60 mr-2 p-4 flex-1 mt-24 mb-20 bg-white shadow-md rounded-md border border-[#166D3B]">
 
     <!-- HEADER -->
-    <div class="bg-white p-4 shadow-md rounded-md border border-[#166D3B] flex justify-between items-center">
+    <div class=" flex justify-between items-center">
         <h1 class="text-2xl font-bold">VISUALIZATION</h1>
-
+        <button onclick="openLetterDescription()"
+                            class=" text-sm bg-[#166D3B] text-white px-4 py-2 rounded-md hover:bg-green-800">
+                        Description
+                    </button>
         <div class="flex items-center gap-4">
             <!-- GRAPH TYPE -->
             <div>
@@ -88,33 +91,49 @@
     {{ letter_descriptions | tojson }}
 </script>
 
+<script id="all-programs-json" type="application/json">
+  {{ all_programs | tojson }}
+</script>
+
 <script>
 /* ================== GLOBAL ================== */
 let chartInstances = [];
 let redrawCallbacks = [];
 
+const LETTER_DESCRIPTIONS = JSON.parse(document.getElementById("letter-desc-data").textContent);
 const allData = JSON.parse(document.getElementById("data-json").textContent);
-const ALL_PROGRAMS = {{ all_programs | tojson | safe }};
+const ALL_PROGRAMS = JSON.parse(document.getElementById("all-programs-json").textContent);
 const ALL_LETTERS = Array.from({length: 18}, (_, i) => String.fromCharCode(65 + i));
 
-/* ================== LABEL WRAP ================== */
-function wrapLabel(label, maxChars = 20) {
-    if (!label) return '';
-    if (label.length <= maxChars) return label;
+function wrapLabel(label, maxChars = 15) {
+    if (!label) return [''];
+    if (label.length <= maxChars) return [label];
     const regex = new RegExp(`.{1,${maxChars}}`, 'g');
-    return label.match(regex).join('\n'); // line breaks
+    return label.match(regex); // returns array of lines
 }
 
-/* ================== CHART FACTORY ================== */
-function renderChart(ctx, type, labels, data, colors, label) {
+function getChartLabels(labels, isProgramChart, type) {
+    if (type === "pie") {
+        // Pie chart: join label into a single line or truncate
+        return labels.map(l => Array.isArray(l) ? l.join(' ') : l);
+    } else if (isProgramChart) {
+        // Bar/Line chart: keep multi-line array for bottom axis
+        return labels;
+    }
+    return labels;
+}
+
+function renderChart(ctx, type, labels, data, colors, label, isProgramChart = false) {
+    const chartLabels = getChartLabels(labels, isProgramChart, type);
+
     return new Chart(ctx, {
         type,
         data: {
-            labels,
+            labels: chartLabels,
             datasets: [{
-                label,
+                label: '', // remove dataset label to avoid redundancy
                 data,
-                backgroundColor: type === "pie" ? colors : colors,
+                backgroundColor: colors,
                 borderColor: colors,
                 borderWidth: type === "line" ? 2 : 0,
                 fill: type === "line" ? false : true,
@@ -126,11 +145,34 @@ function renderChart(ctx, type, labels, data, colors, label) {
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: type === "pie" },
+                tooltip: {
+                    callbacks: {
+                        title: function() {
+                            // Remove top title
+                            return '';
+                        },
+                        label: function(context) {
+                            if (isProgramChart) {
+                                // Show: colored dot + program name + value
+                                return ALL_PROGRAMS[context.dataIndex][1] + ': ' + context.dataset.data[context.dataIndex];
+                            } else {
+                                // Letters chart
+                                return ALL_LETTERS[context.dataIndex] + ': ' + context.dataset.data[context.dataIndex];
+                            }
+                        }
+                    }
+                }
             },
             scales: type === "pie" ? {} : {
                 y: { beginAtZero: true },
-                x: { 
-                    ticks: { font: { size: 8 } } // font size for bar/line
+                x: {
+                    ticks: {
+                        font: { size: isProgramChart ? 8 : 14 },
+                        callback: function(value, index) {
+                            const lbl = chartLabels[index];
+                            return Array.isArray(lbl) ? lbl : [lbl];
+                        }
+                    }
                 }
             }
         }
@@ -141,7 +183,6 @@ function renderChart(ctx, type, labels, data, colors, label) {
 const container = document.getElementById("charts-container");
 
 allData.forEach((yearData, idx) => {
-
     const section = document.createElement("div");
     section.className = "mb-12";
 
@@ -153,15 +194,15 @@ allData.forEach((yearData, idx) => {
         <!-- PROGRAM -->
         <div class="bg-white p-6 rounded-md shadow-md border mb-6">
             <h3 class="font-bold mb-2">Most Chosen Preferred Program</h3>
-            <div class=" h-[420px]">
+            <div class="h-[300px]">
                 <canvas id="program-${idx}"></canvas>
             </div>
         </div>
-
+        
         <!-- LETTER -->
         <div class="bg-white p-6 rounded-md shadow-md border">
             <h3 class="font-bold mb-2">Top Chosen Letters</h3>
-            <div class=" h-[300px]">
+            <div class="h-[300px]">
                 <canvas id="letter-${idx}"></canvas>
             </div>
         </div>
@@ -169,8 +210,8 @@ allData.forEach((yearData, idx) => {
 
     container.appendChild(section);
 
-    // Wrapped program labels
-    const PROGRAM_LABELS = ALL_PROGRAMS.map(p => wrapLabel(p[1], 20));
+    // Wrapped program labels (split into multiple lines)
+    const PROGRAM_LABELS = ALL_PROGRAMS.map(p => wrapLabel(p[1], 15));
     const PROGRAM_COLORS = ALL_PROGRAMS.map(p => p[2] || "#166D3B");
 
     const programData = PROGRAM_LABELS.map((label, i) =>
@@ -185,7 +226,6 @@ allData.forEach((yearData, idx) => {
             : 0
     );
 
-    // Random colors for letters
     const letterColors = ALL_LETTERS.map(() => {
         const hue = Math.floor(Math.random() * 360);
         return `hsl(${hue}, 70%, 55%)`;
@@ -197,14 +237,15 @@ allData.forEach((yearData, idx) => {
         if (programChart) programChart.destroy();
         if (letterChart) letterChart.destroy();
 
-        // Preferred Program chart
+        // Program chart
         programChart = renderChart(
             document.getElementById(`program-${idx}`),
             type,
             PROGRAM_LABELS,
             programData,
             PROGRAM_COLORS,
-            "Students"
+            "Students",
+            true // <--- this makes font smaller and wraps labels
         );
 
         // Letter chart
@@ -214,13 +255,15 @@ allData.forEach((yearData, idx) => {
             ALL_LETTERS,
             letterData,
             letterColors,
-            "Frequency"
+            "Letter chosen",
+            false
         );
+        letterChart.options.scales.x.ticks.font = { size: 14 };
+        letterChart.update();
 
         chartInstances.push(programChart, letterChart);
     }
 
-    // initial draw
     draw(document.getElementById("chartTypeSelect").value);
     redrawCallbacks.push(draw);
 });
