@@ -111,7 +111,7 @@
                                   class="generate-ai bg-[#166D3B] text-white px-3 py-1 rounded-lg shadow hover:bg-[#145c33]"
                                   data-id="{{ id }}"
                                 >
-                                  Generate
+                                  {{ "View" if has_interview else "Generate" }}
                                 </a>
                               </td>
                           </tr>
@@ -533,41 +533,61 @@ document.querySelectorAll(".generate-ai").forEach(btn => {
 
         // Show modal
         document.getElementById("aiModal").classList.remove("hidden");
-        document.getElementById("aiLoading").classList.remove("hidden");
         document.getElementById("aiResults").classList.add("hidden");
 
-        // Fetch AI results
+        // Loading message (neutral: works for DB or AI)
+        const loadingEl = document.getElementById("aiLoading");
+        loadingEl.textContent = "Loading interview insights...";
+        loadingEl.classList.remove("hidden");
+
         fetch(`/admin/generateInterviewAI/${studentId}`)
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("aiLoading").classList.add("hidden");
+            .then(res => res.json())
+            .then(data => {
 
-            // Convert questions array to list
-            document.getElementById("aiQuestions").innerHTML = `
-                <ul class="list-disc list-inside space-y-1">
-                    ${data.questions.map(q => `<li>${q}</li>`).join("")}
-                </ul>
-            `;
+                loadingEl.classList.add("hidden");
 
-            // Mismatch reason (paragraph)
-            document.getElementById("aiMismatch").innerHTML = `
-                <p class="leading-relaxed">${data.mismatch_reason}</p>
-            `;
+                // Safety checks
+                if (!data.questions || !data.talking_points) {
+                    alert("No interview data available.");
+                    return;
+                }
 
-            // Convert talking points array to list
-            document.getElementById("aiTalkingPoints").innerHTML = `
-                <ul class="list-disc list-inside space-y-1">
-                    ${data.talking_points.map(p => `<li>${p}</li>`).join("")}
-                </ul>
-            `;
+                // Questions
+                document.getElementById("aiQuestions").innerHTML = `
+                    <ul class="list-disc list-inside space-y-1">
+                        ${data.questions.map(q => `<li>${q}</li>`).join("")}
+                    </ul>
+                `;
 
-            document.getElementById("aiResults").classList.remove("hidden");
-        });
+                // Mismatch reason
+                document.getElementById("aiMismatch").innerHTML = `
+                    <p class="leading-relaxed">${data.mismatch_reason}</p>
+                `;
+
+                // Talking points
+                document.getElementById("aiTalkingPoints").innerHTML = `
+                    <ul class="list-disc list-inside space-y-1">
+                        ${data.talking_points.map(p => `<li>${p}</li>`).join("")}
+                    </ul>
+                `;
+
+                document.getElementById("aiResults").classList.remove("hidden");
+
+                // OPTIONAL: change button label to "View"
+                btn.textContent = "View";
+                btn.classList.remove("bg-[#166D3B]");
+                btn.classList.add("bg-[#166D3B]");
+
+            })
+            .catch(err => {
+                console.error(err);
+                loadingEl.textContent = "Failed to load interview data.";
+            });
     });
 });
 
 // Close modal
-document.getElementById("closeAiModal").onclick = function() {
+document.getElementById("closeAiModal").onclick = function () {
     document.getElementById("aiModal").classList.add("hidden");
 };
 </script>

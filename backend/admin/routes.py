@@ -18,13 +18,13 @@ from flask import request
 from collections import Counter
 from ..description import letter_descriptions, preferred_program_map, short_letter_descriptions
 from math import ceil
-from openai import OpenAI
+from groq import Groq
 import smtplib
 from email.message import EmailMessage
 import random
 import time
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 admin_bp = Blueprint('admin', __name__, template_folder='../../frontend/templates/admin')
 
@@ -2127,86 +2127,85 @@ def generateInterviewAI(student_id):
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # ---------- FETCH STUDENT + SURVEY ----------
-    cur.execute("""
-        SELECT 
-            s.fullname,
-            sa.preferred_program,
-            sa.pair1, sa.pair2, sa.pair3, sa.pair4, sa.pair5,
-            sa.pair6, sa.pair7, sa.pair8, sa.pair9, sa.pair10,
-            sa.pair11, sa.pair12, sa.pair13, sa.pair14, sa.pair15,
-            sa.pair16, sa.pair17, sa.pair18, sa.pair19, sa.pair20,
-            sa.pair21, sa.pair22, sa.pair23, sa.pair24, sa.pair25,
-            sa.pair26, sa.pair27, sa.pair28, sa.pair29, sa.pair30,
-            sa.pair31, sa.pair32, sa.pair33, sa.pair34, sa.pair35,
-            sa.pair36, sa.pair37, sa.pair38, sa.pair39, sa.pair40,
-            sa.pair41, sa.pair42, sa.pair43, sa.pair44, sa.pair45,
-            sa.pair46, sa.pair47, sa.pair48, sa.pair49, sa.pair50,
-            sa.pair51, sa.pair52, sa.pair53, sa.pair54, sa.pair55,
-            sa.pair56, sa.pair57, sa.pair58, sa.pair59, sa.pair60,
-            sa.pair61, sa.pair62, sa.pair63, sa.pair64, sa.pair65,
-            sa.pair66, sa.pair67, sa.pair68, sa.pair69, sa.pair70,
-            sa.pair71, sa.pair72, sa.pair73, sa.pair74, sa.pair75,
-            sa.pair76, sa.pair77, sa.pair78, sa.pair79, sa.pair80,
-            sa.pair81, sa.pair82, sa.pair83, sa.pair84, sa.pair85,
-            sa.pair86
-        FROM student s
-        LEFT JOIN student_survey_answer sa ON s.id = sa.student_id
-        WHERE s.id = %s
-    """, (student_id,))
-
-    row = cur.fetchone()
-
-    if not row:
-        cur.close()
-        conn.close()
-        return jsonify({"error": "Student not found"}), 404
-
-    fullname = row[0]
-    preferred_program = row[1]
-    letters = [l for l in row[2:] if l]
-
-    if not letters:
-        cur.close()
-        conn.close()
-        return jsonify({"error": "Student has no survey answers"}), 400
-
-    # ---------- GET PROGRAM LETTERS (DB BASED) ----------
-    program_letters = []
-
-    if preferred_program:
+    try:
         cur.execute(
-            "SELECT category_letter FROM program WHERE program_name = %s",
-            (preferred_program,)
+            "SELECT questions FROM interview_questions WHERE student_id = %s",
+            (student_id,)
         )
-        result = cur.fetchone()
-        if result and result[0]:
-            program_letters = [l.strip() for l in result[0].split(",")]
+        existing = cur.fetchone()
 
-    cur.close()
-    conn.close()
+        if existing:
+            return jsonify(existing[0])
 
-    # ---------- PROCESS LETTERS ----------
-    counts = Counter(letters)
-    top_three = [l for l, _ in counts.most_common(3)]
+        cur.execute("""
+            SELECT 
+                s.fullname,
+                sa.preferred_program,
+                sa.pair1, sa.pair2, sa.pair3, sa.pair4, sa.pair5,
+                sa.pair6, sa.pair7, sa.pair8, sa.pair9, sa.pair10,
+                sa.pair11, sa.pair12, sa.pair13, sa.pair14, sa.pair15,
+                sa.pair16, sa.pair17, sa.pair18, sa.pair19, sa.pair20,
+                sa.pair21, sa.pair22, sa.pair23, sa.pair24, sa.pair25,
+                sa.pair26, sa.pair27, sa.pair28, sa.pair29, sa.pair30,
+                sa.pair31, sa.pair32, sa.pair33, sa.pair34, sa.pair35,
+                sa.pair36, sa.pair37, sa.pair38, sa.pair39, sa.pair40,
+                sa.pair41, sa.pair42, sa.pair43, sa.pair44, sa.pair45,
+                sa.pair46, sa.pair47, sa.pair48, sa.pair49, sa.pair50,
+                sa.pair51, sa.pair52, sa.pair53, sa.pair54, sa.pair55,
+                sa.pair56, sa.pair57, sa.pair58, sa.pair59, sa.pair60,
+                sa.pair61, sa.pair62, sa.pair63, sa.pair64, sa.pair65,
+                sa.pair66, sa.pair67, sa.pair68, sa.pair69, sa.pair70,
+                sa.pair71, sa.pair72, sa.pair73, sa.pair74, sa.pair75,
+                sa.pair76, sa.pair77, sa.pair78, sa.pair79, sa.pair80,
+                sa.pair81, sa.pair82, sa.pair83, sa.pair84, sa.pair85,
+                sa.pair86
+            FROM student s
+            LEFT JOIN student_survey_answer sa ON s.id = sa.student_id
+            WHERE s.id = %s
+        """, (student_id,))
 
-    top_three_descriptions = [
-        short_letter_descriptions.get(l, "Unknown")
-        for l in top_three
-    ]
+        row = cur.fetchone()
+        if not row:
+            return jsonify({"error": "Student not found"}), 404
 
-    all_letter_descriptions = [
-        short_letter_descriptions.get(l, "Unknown")
-        for l in letters
-    ]
+        fullname = row[0]
+        preferred_program = row[1]
+        letters = [l for l in row[2:] if l]
 
-    program_descriptions = [
-        short_letter_descriptions.get(l, "Unknown")
-        for l in program_letters
-    ]
+        if not letters:
+            return jsonify({"error": "No survey answers"}), 400
 
-    # ---------- AI PROMPT ----------
-    prompt = f"""
+        # ---------- PROGRAM LETTERS ----------
+        program_letters = []
+        if preferred_program:
+            cur.execute(
+                "SELECT category_letter FROM program WHERE program_name = %s",
+                (preferred_program,)
+            )
+            res = cur.fetchone()
+            if res and res[0]:
+                program_letters = [x.strip() for x in res[0].split(",")]
+
+        # ---------- ANALYSIS ----------
+        counts = Counter(letters)
+        top_three = [l for l, _ in counts.most_common(3)]
+
+        top_three_descriptions = [
+            short_letter_descriptions.get(l, "Unknown")
+            for l in top_three
+        ]
+
+        all_letter_descriptions = [
+            short_letter_descriptions.get(l, "Unknown")
+            for l in letters
+        ]
+
+        program_descriptions = [
+            short_letter_descriptions.get(l, "Unknown")
+            for l in program_letters
+        ]
+
+        prompt = f"""
 You are an educational guidance AI.
 
 Student: {fullname}
@@ -2229,47 +2228,53 @@ Explain alignment or mismatch by comparing:
 - Program category letters + descriptions
 - Student top 3 letters + descriptions
 
-Return JSON ONLY:
+Use ONLY provided descriptions.
+Return JSON ONLY.
 
 {{
-  "questions": [
-    "question1",
-    "question2",
-    "question3",
-    "question4",
-    "question5",
-    "question6"
-  ],
-  "mismatch_reason": "Explain clearly in paragraph form.",
-  "talking_points": [
-    "point1",
-    "point2",
-    "point3"
-  ]
+  "questions": ["q1","q2","q3","q4","q5","q6"],
+  "mismatch_reason": "Explain clearly",
+  "talking_points": ["p1","p2","p3"]
 }}
-
-Tone: friendly, simple, encouraging.
 """
 
-    # ---------- OPENAI ----------
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # ---------- GROQ AI ----------
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": "Return ONLY valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=1000
+        )
 
-    ai = client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt
-    )
+        raw = response.choices[0].message.content.strip()
 
-    try:
-        content = ai.output[0].content[0].text
-        data = json.loads(content)
-    except Exception:
-        return jsonify({"error": "AI formatting error"}), 500
+        import re, json
+        match = re.search(r"\{.*\}", raw, re.S)
+        if not match:
+            raise ValueError("Invalid JSON from AI")
 
-    return jsonify({
-        "questions": data.get("questions", []),
-        "mismatch_reason": data.get("mismatch_reason", ""),
-        "talking_points": data.get("talking_points", [])
-    })
+        data = json.loads(match.group())
+
+        # ---------- SAVE ----------
+        cur.execute(
+            "INSERT INTO interview_questions (student_id, questions) VALUES (%s, %s)",
+            (student_id, json.dumps(data))
+        )
+        conn.commit()
+
+        return jsonify(data)
+
+    except Exception as e:
+        conn.rollback()
+        print("ERROR:", e)
+        return jsonify({"error": "AI generation failed"}), 500
+
+    finally:
+        cur.close()
+        conn.close()
 
 PER_PAGE = 10
 
