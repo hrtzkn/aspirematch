@@ -2346,11 +2346,16 @@ def interviewList():
             sa.pair86,
             sch.schedule_date,
             sch.start_time,
-            sch.end_time
+            sch.end_time,
+            CASE 
+                WHEN iq.student_id IS NOT NULL THEN TRUE 
+                ELSE FALSE 
+            END AS has_interview
         FROM student s
         LEFT JOIN student_survey_answer sa ON s.id = sa.student_id
         LEFT JOIN student_schedules ss ON s.id = ss.student_id
         LEFT JOIN schedules sch ON ss.schedule_id = sch.id
+        LEFT JOIN interview_questions iq ON s.id = iq.student_id
         WHERE EXTRACT(YEAR FROM s.created_at) = %s
         AND (s.campus = %s OR s.added_by = %s)
         AND (%s = '' OR s.fullname ILIKE %s)
@@ -2369,8 +2374,8 @@ def interviewList():
 
     for row in raw_students:
         student_id, exam_id, fullname, preferred_program, *rest = row
-        pairs = rest[:-3]
-        schedule_date, start_time, end_time = rest[-3:]
+        pairs = rest[:-4]
+        schedule_date, start_time, end_time, has_interview = rest[-4:]
 
         answers_clean = [p for p in pairs if p]
         top_letters = [l for l, _ in Counter(answers_clean).most_common(3)]
@@ -2402,7 +2407,7 @@ def interviewList():
             else:
                 schedule_str = None
 
-            students.append((student_id, exam_id, fullname, schedule_str))
+            students.append((student_id, exam_id, fullname, schedule_str, has_interview))
 
     cur.close()
     conn.close()
