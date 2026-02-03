@@ -16,12 +16,12 @@ from ..description import letter_descriptions, preferred_program_map, ai_respons
 from math import ceil
 from calendar import monthrange
 import datetime
-from openai import OpenAI
+from groq import Groq
 import random
 import time
 from datetime import datetime
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 student_bp = Blueprint('student', __name__, template_folder='../../frontend/templates/student')
 
@@ -105,8 +105,21 @@ def generate_ai_insights(top_letters, preferred_program, fullname):
     """
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are an educational guidance AI. "
+                    "You MUST return ONLY plain text. "
+                    "Do NOT use asterisks (*), hashtags (#), or markdown formatting. "
+                    "Use only • for bullet points and plain headings without extra symbols."
+                )
+            },
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.3,
+        max_tokens=700
     )
 
     return response.choices[0].message.content
@@ -322,31 +335,54 @@ def verify():
 
 @student_bp.route("/chatbot", methods=["POST"])
 def chatbot():
-    user_msg = request.json.get("message", "")
+    user_msg = request.json.get("message", "").lower()
 
-    ai = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "Your name is Dan. You are a friendly AI assistant in the AspireMatch system. Answer clearly and simply."},
-            {"role": "user", "content": user_msg}
-        ]
-    )
-
-    # Detect survey keywords
+    # ---- Rule-based replies FIRST (fast + free) ----
     if "strength" in user_msg:
-        return jsonify({ "reply": "Your strengths are tied to your top survey letters. These represent activities you naturally enjoy and can excel at. Want me to explain each letter’s strengths?" })
+        return jsonify({
+            "reply": "Your strengths are tied to your top survey letters. These represent activities you naturally enjoy and can excel at. Want me to explain each letter’s strengths?"
+        })
 
     if "weakness" in user_msg:
-        return jsonify({ "reply": "I can help identify your potential weaknesses based on your career interest profile. Tell me which letter you want to understand better." })
+        return jsonify({
+            "reply": "I can help identify your potential weaknesses based on your career interest profile. Tell me which letter you want to understand better."
+        })
 
     if "course" in user_msg or "suggest" in user_msg:
-        return jsonify({ "reply": "Based on your career results, I can suggest relevant courses. What program are you interested in exploring?" })
+        return jsonify({
+            "reply": "Based on your career results, I can suggest relevant courses. What program are you interested in exploring?"
+        })
 
     if "explain" in user_msg and "result" in user_msg:
-        return jsonify({ "reply": "Sure! Your career result shows what type of work environment fits you best. Ask me anything about your top letters!" })
+        return jsonify({
+            "reply": "Sure! Your career result shows what type of work environment fits you best. Ask me anything about your top letters!"
+        })
 
-    reply = ai.choices[0].message.content
-    return {"reply": reply}
+    # ---- Groq AI fallback ----
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Your name is Dan. You are a friendly AI assistant in the AspireMatch system. "
+                        "Answer clearly, simply, and in a supportive tone."
+                    )
+                },
+                {"role": "user", "content": user_msg}
+            ],
+            temperature=0.4,
+            max_tokens=300
+        )
+
+        reply = response.choices[0].message.content
+        return jsonify({"reply": reply})
+
+    except Exception as e:
+        return jsonify({
+            "reply": "Sorry, I'm having trouble responding right now. Please try again later."
+        }), 500
 
 @student_bp.route("/chatbot_receive_interest", methods=["POST"])
 def chatbot_receive_interest():

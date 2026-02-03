@@ -2135,7 +2135,9 @@ def generateInterviewAI(student_id):
         existing = cur.fetchone()
 
         if existing:
-            return jsonify(existing[0])
+            import json
+            data = json.loads(existing[0])  # <-- convert string -> dict
+            return jsonify(data)
 
         cur.execute("""
             SELECT 
